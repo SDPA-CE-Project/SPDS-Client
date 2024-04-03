@@ -49,7 +49,7 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private RtspCamera1 rtspCamera1;
-    private Button btnRecord, btnSwitch, btnAuth, btnDebug;
+    private Button btnRecord, btnSwitch, btnAuth, btnDebug, btnOnDevice;
     private TextView txtValue, txtValue2, txtAvg, txtUser, txtChkConnReq, txtChkConnRes, txtUid, txtHash,
             txtBitrate, txtSleepLevel, txtSleepStat;
     private String currentDateAndTime = "";
@@ -88,10 +88,12 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
         btnSwitch = findViewById(R.id.btnSwitchCam);
         btnAuth = findViewById(R.id.btnAuth);
         btnDebug = findViewById(R.id.btnDebug);
+        btnOnDevice = findViewById(R.id.btnOndevice);
         btnRecord.setOnClickListener(this);;
         btnSwitch.setOnClickListener(this);
         btnAuth.setOnClickListener(this);
         btnDebug.setOnClickListener(this);
+        btnOnDevice.setOnClickListener(this);
 
 
         txtValue = findViewById(R.id.txtValue);
@@ -138,10 +140,6 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(rtspCamera1.isStreaming()) {
                         Value value = snapshot.getValue(Value.class);
-                        // **********************************************************
-                        // **********************************************************
-                        // **********************************************************
-                        // **********************************************************
 
                         Log.d(TAG, "Data changed left : " + value.left);
                         Log.d(TAG, "Data changed right : " + value.right);
@@ -318,7 +316,11 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
             } catch (CameraOpenException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        } else if (id == R.id.btnAuth) {
+        } else if (id == R.id.btnOndevice) {
+        Intent intent = new Intent(this, OndeviceActivity.class);
+        startActivity(intent);
+
+        }else if (id == R.id.btnAuth) {
             if (currentUser == null) {
                 Intent intent = new Intent(this, LoginActivity.class);
                 startActivity(intent);

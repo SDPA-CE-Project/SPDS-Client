@@ -27,10 +27,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SPDA_APP"
         tools:targetApi="31">
-        <activity android:name=".SongSettingActivity"
-            android:parentActivityName=".AlarmSettingActivity"
+        <activity
+            android:name=".OndeviceActivity"/>
+        <activity
+            android:name=".SongSettingActivity"
             android:exported="false"
-            android:theme="@style/Theme.Actionbar"></activity>
+            android:parentActivityName=".AlarmSettingActivity"
+            android:theme="@style/Theme.Actionbar" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -41,15 +44,17 @@
             </intent-filter>
         </activity>
         <activity android:name=".AlarmSettingActivity" />
-        <activity android:name=".VibrationSettingActivity"/>
-        <activity android:name=".StepSettingActivity"/>
+        <activity android:name=".VibrationSettingActivity" />
+        <activity android:name=".StepSettingActivity" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
-        <activity android:name=".CameraStreamActivity" android:exported="false"/>
+        <activity
+            android:name=".CameraStreamActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
