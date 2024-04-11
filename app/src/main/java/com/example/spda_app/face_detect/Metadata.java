@@ -1,6 +1,8 @@
 package com.example.spda_app.face_detect;
 
 import android.graphics.Rect;
+import android.graphics.RectF;
+
 import com.google.mlkit.vision.face.Face;
 
 import java.util.ArrayList;
@@ -8,7 +10,7 @@ import java.util.List;
 
 public class Metadata {
     private Face face;
-    Metadata() {}
+    public Metadata() {}
     public Metadata(Face face) {
         this.face = face;
     }

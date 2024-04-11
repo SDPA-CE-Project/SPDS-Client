@@ -2,6 +2,9 @@ package com.example.spda_app;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -17,6 +20,7 @@ import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
 import com.example.spda_app.face_detect.DrawFace;
 import com.example.spda_app.face_detect.Metadata;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -28,15 +32,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
+
 
 public class OndeviceActivity extends AppCompatActivity {
     PreviewView previewView;
-
+    ImageView imgView;
     ExecutorService cameraExecutor;
     FaceDetector faceDetector;
     String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
+    private static final String model = "FL16_default.tflite";
 
 
 
@@ -46,11 +54,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
 
 
-    @Override
-    protected void onPause() {
-        super.onPause();
 
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +62,12 @@ public class OndeviceActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
         previewView = findViewById(R.id.vw_Preview);
+        imgView = findViewById(R.id.imgview);
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         if (allPermissionsGranted()) {
-            startCamera();
+            startDetect();
         } else {
             ActivityCompat.requestPermissions(
             this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
@@ -73,13 +78,13 @@ public class OndeviceActivity extends AppCompatActivity {
 
     }
 
-    private void startCamera() {
+    private void startDetect() {
         LifecycleCameraController cameraController = new LifecycleCameraController(getBaseContext());
         FaceDetectorOptions faceNoneOpt = new FaceDetectorOptions.Builder().
                                                 build();
         faceDetector = FaceDetection.getClient(faceNoneOpt);
 
-        Log.d(TAG, "start cameraController");
+
 
         cameraController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(this),
                 new MlKitAnalyzer(List.of(faceDetector), 1, ContextCompat.getMainExecutor(this), result -> {
@@ -88,13 +93,19 @@ public class OndeviceActivity extends AppCompatActivity {
                     if (faceResult == null || faceResult.isEmpty()) {
                         previewView.getOverlay().clear();
                     } else {
+                        Bitmap fullImage = previewView.getBitmap();
                         Metadata metadata = new Metadata(faceResult.get(0));
                         DrawFace drawFace = new DrawFace(metadata);
                         Log.d(TAG, "face res: " + faceResult.get(0));
 
-                        previewView.getOverlay().clear();
 
+                        Bitmap croppedFace = cropFaceResize(fullImage, faceResult.get(0).getBoundingBox());
+
+
+                        previewView.getOverlay().clear();
                         previewView.getOverlay().add(drawFace);
+                        imgView.setImageBitmap(croppedFace);
+                        imgView.setVisibility(View.VISIBLE);
                     }
                 }));
         CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -107,6 +118,27 @@ public class OndeviceActivity extends AppCompatActivity {
 
     }
 
+    private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
+        int width = fullImage.getWidth();
+        int height = fullImage.getHeight();
+
+        // 얼굴 영역의 좌표
+        int left = boundingBox.left;
+        int top = boundingBox.top;
+        int right = boundingBox.right;
+        int bottom = boundingBox.bottom;
+
+        left = Math.max(left, 0);
+        top = Math.max(top, 0);
+        right = Math.min(right, width);
+        bottom = Math.min(bottom, height);
+
+        Bitmap faceBitmap = Bitmap.createBitmap(fullImage, left, top, right - left, bottom - top);
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(faceBitmap, 256, 256, true);
+        faceBitmap.recycle();
+
+        return resizedBitmap;
+    }
     private boolean allPermissionsGranted() {
         for (String permission : REQUIRED_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(getBaseContext(), permission) != PackageManager.PERMISSION_GRANTED) {
@@ -114,6 +146,11 @@ public class OndeviceActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+
     }
     @Override
     protected void onDestroy() {
@@ -126,7 +163,7 @@ public class OndeviceActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
-                startCamera();
+                startDetect();
             } else {
                 Toast.makeText(this,
                         "Permissions not granted by the user.",
