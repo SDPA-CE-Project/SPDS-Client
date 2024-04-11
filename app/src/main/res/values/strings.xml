@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">SPDA_APP</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="switch_camera">Switch</string>
+    <string name="rtmp">key</string>
+    <string name="set">Set</string>
+    <string name="email">EMAIL</string>
+    <string name="passwd">PASSWORD</string>
+    <string name="signin">Sign In</string>
+    <string name="signout">Sign Out</string>
+    <string name="register">Register</string>
+    <string name="noSignin">Not Signed In</string>
+    <string name="idle">idle</string>
+    <string name="ConnectionRequest">ConnectionRequest: %1$s</string>
+    <string name="ConnectionResponse">ConnectionResponse: %1$s</string>
+    <string name="uid">UID: %1$s</string>
+    <string name="hash">HASH: %1$s</string>
+    <string name="bitrate">Bitrate: %1$d</string>
+    <string name="fps">FPS: %1$d</string>
+    <string name="debug">DEBUG</string>
+    <string name="standby">대기</string>
+    <string name="identifying">식별중</string>
+    <string name="level_1">정상</string>
+    <string name="level_2">위험</string>
+    <string name="level_3">경고</string>
+    <string name="sleepStat">sleepStat: %1$d</string>
+</resources>

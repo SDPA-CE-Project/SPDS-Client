@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="songLinearLayout" type="id"/>
+    <item name="vibrationLinearLayout" type="id" />
+    <item name="alrambellLinearLayout" type="id" />
+    <item name="usersettingLinearLayout" type="id" />
+</resources>
