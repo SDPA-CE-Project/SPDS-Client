@@ -16,17 +16,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.example.spda_app.face_detect.GraphicOverlay
-        android:id="@+id/vw_overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <ImageView
         android:id="@+id/imgview"
         android:layout_width="512px"
         android:layout_height="512px"
-        app:layout_constraintEnd_toEndOf="@+id/vw_Preview"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_delete" />
+
+    <com.example.spda_app.face_detect.GraphicOverlay
+        android:id="@+id/vw_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

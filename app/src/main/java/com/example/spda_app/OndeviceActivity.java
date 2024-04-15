@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -25,7 +26,9 @@ import androidx.core.content.ContextCompat;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
 import com.example.spda_app.face_detect.DrawLandmark;
+import com.example.spda_app.face_detect.DrawLandmarkGraphic;
 import com.example.spda_app.face_detect.DrawOverlay;
+import com.example.spda_app.face_detect.GraphicOverlay;
 import com.example.spda_app.face_detect.LandmarkData;
 import com.example.spda_app.face_detect.Metadata;
 
@@ -67,6 +70,7 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 public class OndeviceActivity extends AppCompatActivity {
     PreviewView previewView;
+    GraphicOverlay graphicOverlay;
     ImageView imgView;
     ExecutorService cameraExecutor;
     FaceDetector faceDetector;
@@ -94,6 +98,7 @@ public class OndeviceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ondevice);
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
+        graphicOverlay = findViewById(R.id.vw_overlay);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         try {
@@ -125,6 +130,7 @@ public class OndeviceActivity extends AppCompatActivity {
                     List<Face> faceResult = result.getValue(faceDetector);
                     if (faceResult == null || faceResult.isEmpty()) {
                         previewView.getOverlay().clear();
+                        graphicOverlay.clear();
                     } else {
                         Bitmap fullImage = previewView.getBitmap();
                         Metadata metadata = new Metadata(faceResult.get(0));
@@ -175,8 +181,11 @@ public class OndeviceActivity extends AppCompatActivity {
                         DrawLandmark drawLandmark = new DrawLandmark(landmark, metadata);
 
                         previewView.getOverlay().clear();
+                        graphicOverlay.clear();
                         previewView.getOverlay().add(drawOverlay);
-                        previewView.getOverlay().add(drawLandmark);
+                        //previewView.getOverlay().add(drawLandmark);
+
+                        graphicOverlay.add(new DrawLandmarkGraphic(graphicOverlay, landmark));
                         imgView.setImageBitmap(croppedFace);
                         imgView.setVisibility(View.VISIBLE);
                     }
@@ -194,9 +203,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
         int width = fullImage.getWidth();
         int height = fullImage.getHeight();
-
-
-        // 얼굴 영역의 좌표
+        
         int left = boundingBox.left;
         int top = boundingBox.top;
         int right = boundingBox.right;
@@ -210,16 +217,14 @@ public class OndeviceActivity extends AppCompatActivity {
         int faceWidth = right - left;
         int faceHeight = bottom - top;
 
-        float scaleFactor = 1.5f; // 확장할 비율
+        float scaleFactor = 1.5f;
 
         int expandedWidth = (int) (faceWidth * scaleFactor);
         int expandedHeight = (int) (faceHeight * scaleFactor);
 
-// 얼굴 영역의 중심 좌표 계산
         int faceCenterX = (left + right) / 2;
         int faceCenterY = (top + bottom) / 2;
 
-// 확장된 얼굴 영역의 좌표 계산
         int expandedLeft = Math.max(faceCenterX - expandedWidth / 2, 0);
         int expandedTop = Math.max(faceCenterY - expandedHeight / 2, 0);
         int expandedRight = Math.min(faceCenterX + expandedWidth / 2, width);
