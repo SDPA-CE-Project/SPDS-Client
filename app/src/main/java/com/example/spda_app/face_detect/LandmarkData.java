@@ -57,7 +57,16 @@ public class LandmarkData {
 
         double A = calculateEuclideanDistance(coordX[43], coordX[46], coordY[43], coordY[46]);
         double B = calculateEuclideanDistance(coordX[44], coordX[47], coordY[44], coordY[47]);
-        double C = calculateEuclideanDistance(coordX[43], coordX[46], coordY[43], coordY[46]);
+        double C = calculateEuclideanDistance(coordX[42], coordX[45], coordY[42], coordY[45]);
+        return (A + B) / (2.0 * C);
+    }
+    public double marAvg() {
+        int[] coordX = getMapCoordX();
+        int[] coordY = getMapCoordY();
+
+        double A = calculateEuclideanDistance(coordX[61], coordX[65], coordY[61], coordY[65]);
+        double B = calculateEuclideanDistance(coordX[63], coordX[67], coordY[63], coordY[67]);
+        double C = calculateEuclideanDistance(coordX[60], coordX[64], coordY[60], coordY[64]);
         return (A + B) / (2.0 * C);
     }
     public double earAvg() {

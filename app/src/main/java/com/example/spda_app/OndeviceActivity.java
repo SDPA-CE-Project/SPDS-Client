@@ -76,11 +76,12 @@ public class OndeviceActivity extends AppCompatActivity {
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar;
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
     private static final String model_2 = "model.tflite";
+    private static final String model_3 = "upgraded_model_quantizated_dynamic.tflite";
 
     private Interpreter interpreter;
 
@@ -102,6 +103,11 @@ public class OndeviceActivity extends AppCompatActivity {
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
         graphicOverlay = findViewById(R.id.vw_overlay);
+        txtLeftEAR = findViewById(R.id.txtLeftEAR);
+        txtRightEAR = findViewById(R.id.txtRightEAR);
+        txtAvgEAR = findViewById(R.id.txtAvgEAR);
+        txtMar = findViewById(R.id.txtMAR);
+
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         try {
@@ -191,6 +197,11 @@ public class OndeviceActivity extends AppCompatActivity {
                         //previewView.getOverlay().add(drawLandmark);
 
                         graphicOverlay.add(new DrawLandmarkGraphic(graphicOverlay, landmark));
+                        txtLeftEAR.setText(String.format("%.4f", landmark.earLeft()));
+                        txtRightEAR.setText(String.format("%.4f", landmark.earRight()));
+                        txtAvgEAR.setText(String.format("%.4f", landmark.earAvg()));
+                        txtMar.setText(String.format("%.4f", landmark.marAvg()));
+
                         imgView.setImageBitmap(croppedFace);
                         imgView.setVisibility(View.VISIBLE);
                     }
