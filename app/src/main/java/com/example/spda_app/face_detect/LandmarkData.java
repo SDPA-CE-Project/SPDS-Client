@@ -37,4 +37,33 @@ public class LandmarkData {
         }
         return temp;
     }
+    private double calculateEuclideanDistance(int point1X, int point2X, int point1Y, int point2Y) {
+        float dx = point1X - point2X;
+        float dy = point1Y - point2Y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+    public double earLeft() {
+        int[] coordX = getMapCoordX();
+        int[] coordY = getMapCoordY();
+
+        double A = calculateEuclideanDistance(coordX[37], coordX[40], coordY[37], coordY[40]);
+        double B = calculateEuclideanDistance(coordX[38], coordX[41], coordY[38], coordY[41]);
+        double C = calculateEuclideanDistance(coordX[36], coordX[39], coordY[36], coordY[39]);
+        return (A + B) / (2.0 * C);
+    }
+    public double earRight() {
+        int[] coordX = getMapCoordX();
+        int[] coordY = getMapCoordY();
+
+        double A = calculateEuclideanDistance(coordX[43], coordX[46], coordY[43], coordY[46]);
+        double B = calculateEuclideanDistance(coordX[44], coordX[47], coordY[44], coordY[47]);
+        double C = calculateEuclideanDistance(coordX[43], coordX[46], coordY[43], coordY[46]);
+        return (A + B) / (2.0 * C);
+    }
+    public double earAvg() {
+        double right = earRight();
+        double left = earLeft();
+
+        return (left+right)/2;
+    }
 }

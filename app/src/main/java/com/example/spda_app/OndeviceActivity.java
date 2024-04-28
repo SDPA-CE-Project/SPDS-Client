@@ -10,6 +10,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -59,6 +60,7 @@ import java.util.concurrent.Executors;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.tensorflow.lite.DataType;
@@ -69,12 +71,13 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
 public class OndeviceActivity extends AppCompatActivity {
-    PreviewView previewView;
-    GraphicOverlay graphicOverlay;
-    ImageView imgView;
-    ExecutorService cameraExecutor;
-    FaceDetector faceDetector;
-    String TAG = "onDeviceTest";
+    private PreviewView previewView;
+    private GraphicOverlay graphicOverlay;
+    private ImageView imgView;
+    private ExecutorService cameraExecutor;
+    private FaceDetector faceDetector;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR;
+    private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
     private static final String model_2 = "model.tflite";
@@ -178,7 +181,9 @@ public class OndeviceActivity extends AppCompatActivity {
 
 
                         //Log.d(TAG, "Output array: " + Arrays.deepToString(outputArray));
-                        DrawLandmark drawLandmark = new DrawLandmark(landmark, metadata);
+                        //DrawLandmark drawLandmark = new DrawLandmark(landmark, metadata);
+
+
 
                         previewView.getOverlay().clear();
                         graphicOverlay.clear();
@@ -199,8 +204,21 @@ public class OndeviceActivity extends AppCompatActivity {
         previewView.setController(cameraController);
 
     }
-
-    private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
+//    private double calculateEuclideanDistance(int point1X, int point2X, int point1Y, int point2Y) {
+//        float dx = point1X - point2X;
+//        float dy = point1Y - point2Y;
+//        return Math.sqrt(dx * dx + dy * dy);
+//    }
+//    private double calculate_EAR(LandmarkData landmarkData) {
+//        int[] coordX = landmarkData.getMapCoordX();
+//        int[] coordY = landmarkData.getMapCoordY();
+//
+//        double A = calculateEuclideanDistance(coordX[37], coordX[40], coordY[37], coordY[40]);
+//        double B = calculateEuclideanDistance(coordX[38], coordX[41], coordY[38], coordY[41]);
+//        double C = calculateEuclideanDistance(coordX[36], coordX[39], coordY[36], coordY[39]);
+//        return (A + B) / (2.0 * C);
+//    }
+        private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
         int width = fullImage.getWidth();
         int height = fullImage.getHeight();
         
