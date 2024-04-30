@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OndeviceActivity">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/vw_Preview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+    </androidx.camera.view.PreviewView>
+
+    <ImageView
+        android:id="@+id/imgview"
+        android:layout_width="512px"
+        android:layout_height="512px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_delete" />
+
+    <com.example.spda_app.face_detect.GraphicOverlay
+        android:id="@+id/vw_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/txtRightEAR"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtLeftEAR"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/txtRightEAR"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtAvgEAR"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtRightEAR"
+        app:layout_constraintStart_toStartOf="@+id/txtLeftEAR"
+        app:layout_constraintTop_toBottomOf="@+id/txtRightEAR" />
+
+    <TextView
+        android:id="@+id/txtMAR"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtAvgEAR"
+        app:layout_constraintStart_toStartOf="@+id/txtAvgEAR"
+        app:layout_constraintTop_toBottomOf="@+id/txtAvgEAR" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
