@@ -25,4 +25,8 @@
     <string name="level_2">위험</string>
     <string name="level_3">경고</string>
     <string name="sleepStat">sleepStat: %1$d</string>
+    <string name="default_spinner_text1">1단계 알람설정</string>
+    <string name="default_spinner_text2">2단계 알람설정</string>
+    <string name="default_spinner_text3">3단계 알람설정</string>
+    <string name="default_spinner_text4">4단계 알람설정</string>
 </resources>
