@@ -6,15 +6,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
-
+import android.widget.TextView;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -51,7 +55,9 @@ import android.os.Bundle;
 
 import org.checkerframework.checker.units.qual.N;
 
-public class CameraStreamActivity extends AppCompatActivity implements ConnectChecker, View.OnClickListener, SurfaceHolder.Callback{
+public class CameraStreamActivity extends AppCompatActivity implements ConnectChecker, View.OnClickListener, SurfaceHolder.Callback {
+    long startTime = 0; // 측정 시작 시간
+    long endTime = 0;   // 측정 종료 시간
 
     private ActivityCameraBinding binding;
 
@@ -63,7 +69,7 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
     private RtspCamera1 rtspCamera1;
     private Button btnRecord, btnSwitch, btnAuth, btnDebug;
     private TextView txtValue, txtValue2, txtAvg, txtUser, txtChkConnReq, txtChkConnRes, txtUid, txtHash,
-            txtBitrate, txtSleepLevel, txtSleepStat;
+            txtBitrate, txtSleepLevel, txtSleepStat, txtSpeed;
     private String currentDateAndTime = "";
     private SurfaceView surfaceView;
     private boolean isPlayingAudio = false;
@@ -83,16 +89,17 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
 
     private final String[] PERMISSIONS = {
             Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private final String[] PERMISSIONS_A_13 = {
             Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA,
-            Manifest.permission.POST_NOTIFICATIONS
+            Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
     };
 
     private int dzLevelCount = 50;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +117,8 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
         btnSwitch = findViewById(R.id.btnSwitchCam);
         btnAuth = findViewById(R.id.btnAuth);
         btnDebug = findViewById(R.id.btnDebug);
-        btnRecord.setOnClickListener(this);;
+        btnRecord.setOnClickListener(this);
+        ;
         btnSwitch.setOnClickListener(this);
         btnAuth.setOnClickListener(this);
         btnDebug.setOnClickListener(this);
@@ -127,6 +135,8 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
         txtBitrate = findViewById(R.id.txtBitrate);
         txtSleepLevel = findViewById(R.id.txtSleepLevel);
         txtSleepStat = findViewById(R.id.txtSleepStat);
+        txtSpeed = findViewById(R.id.txtSpeed);
+
 
         rtspCamera1 = new RtspCamera1(surfaceView, this);
         rtspCamera1.switchCamera();
@@ -135,9 +145,51 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
         DBReference = database.getReference();
 
         mAuth = FirebaseAuth.getInstance();
+        final LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+            // 위치정보를 원하는 시간, 거리마다 갱신해준다.
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    1000,
+                    1,
+                    gpsLocationListener);
+            } else {
+            // 위치정보를 원하는 시간, 거리마다 갱신해준다.
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    1000,
+                    1,
+                    gpsLocationListener);
+            }
+        }
+    final LocationListener gpsLocationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            float speed;
+            String provider = location.getProvider();  // 위치정보
+            speed = location.getSpeed();  // 속도
+            txtSpeed.setText(String.format("speed:%1$d", speed));
+        }
 
-    }
+
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // 상태 변경 시 처리할 내용
+        }
+
+        public void onProviderEnabled(String provider) {
+            // 위치 제공자가 활성화될 때 처리할 내용
+        }
+
+        public void onProviderDisabled(String provider) {
+
+            System.out.println("Error> System Error Provider is Disabled");
+            // 위치 제공자가 비활성화될 때 처리할 내용
+        }
     // 뒤로가기 버튼 처리
+
+    };
+
     @Override
     public void onBackPressed() {
         // 2초 이내에 뒤로가기 버튼을 재 클릭 시 앱 종료
@@ -153,6 +205,8 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
             Toast.makeText(this, "'뒤로' 버튼을 한번 더 누르시면 앱이 종료됩니다.", Toast.LENGTH_SHORT).show();
         }
     }
+
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -293,6 +347,9 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
                     closePlayer();
                 }
             });
+            
+            // 측정 시간
+            startTime = System.currentTimeMillis();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -308,6 +365,8 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
                     closePlayer();
                 }
             });
+            // 측정 종료
+            endTime = System.currentTimeMillis();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -336,6 +395,7 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
     public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
         rtspCamera1.stopPreview();
     }
+
 
     @Override
     public void onClick(View view) {
@@ -460,5 +520,6 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
 
     @Override
     public void onNewBitrate(long bitrate) {txtBitrate.setText(getString(R.string.bitrate, bitrate));}
+
 }
 
