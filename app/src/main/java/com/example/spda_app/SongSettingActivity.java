@@ -1,5 +1,6 @@
 package com.example.spda_app;
 
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,85 +24,49 @@ import java.util.ArrayList;
 
 public class SongSettingActivity extends AppCompatActivity {
 
-    private SongSettingBinding binding2;
-    ListView listViewMP3;
-    Button btnPlay, btnStop;
-    TextView tvMP3;
-    ProgressBar pbMP3;
-    ArrayList<String> mp3List;
-    MediaPlayer mPlayer;
-    String selectedMP3;
+    private static int selectedMP3Index = 0;
+    private ListView listViewMP3;
+    private ArrayList<String> mp3List;
+
+    private SongSettingBinding binding;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding2 = SongSettingBinding.inflate(getLayoutInflater()); // 체크할것
-        setContentView(binding2.getRoot());
-        setTitle("실험제목");
+        binding = SongSettingBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        binding.number.setText(String.valueOf(getSelectedMP3Index()));
 
-        mp3List = new ArrayList<String>();
-        mp3List.add(String.valueOf(R.raw.song_1));
-        mp3List.add(String.valueOf(R.raw.song_2));
-        mp3List.add(String.valueOf(R.raw.song_3));
+        // 음악 리스트 초기화
+        mp3List = new ArrayList<>();
+        mp3List.add("Song 1");
+        mp3List.add("Song 2");
+        mp3List.add("Song 3");
 
-        // 리스트뷰에 mp3 음악 추가하기
-        listViewMP3 = binding2.listViewMP3;
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_single_choice, mp3List);
+        // 리스트뷰 설정 및 어댑터 설정...
+        listViewMP3 = findViewById(R.id.listViewMP3);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_single_choice, mp3List);
         listViewMP3.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listViewMP3.setAdapter(adapter);
-        listViewMP3.setItemChecked(0, true);
 
+        // 리스트뷰 아이템 클릭 리스너 설정
         listViewMP3.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                selectedMP3 = mp3List.get(i);
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // 클릭한 아이템의 인덱스 값을 selectedMP3Index에 저장
+                setSelectedMP3Index(position);
+                binding.number.setText(String.valueOf(getSelectedMP3Index()));
             }
         });
-        selectedMP3 = mp3List.get(0);
-
-        btnPlay = binding2.btnPlay;
-        btnStop = binding2.btnStop;
-        tvMP3 = binding2.tvMP3;
-        pbMP3 = binding2.pbMP3;
-
-        // 재생버튼
-        btnPlay.setOnClickListener(new View.OnClickListener() {
+        Button btnConfirm = binding.confirm;
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                try{
-                    mPlayer = new MediaPlayer();
-                    mPlayer.setDataSource(getApplicationContext(), Uri.parse("android.resource://" + getPackageName() + "/" + selectedMP3));
-                    mPlayer.prepare();
-                    mPlayer.start();
-                    btnPlay.setClickable(false);
-                    btnStop.setClickable(true);
-                    tvMP3.setText("실행중인 음악:" + selectedMP3);
-                    pbMP3.setVisibility(View.VISIBLE);
-                }catch (IOException e){}
+            public void onClick(View v) {
+                // 확인 버튼을 클릭했을 때 이전 화면으로 돌아가는 로직을 추가
+                finish();
             }
         });
-
-        // 정지 버튼
-        btnStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mPlayer.start();
-                mPlayer.reset();
-                btnPlay.setClickable(true);
-                btnStop.setClickable(false);
-                tvMP3.setText("실행중인 음악: ");
-                pbMP3.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        btnStop.setClickable(false);
-
     }
 
     @Override
@@ -110,13 +75,15 @@ public class SongSettingActivity extends AppCompatActivity {
         return true;
     }
 
-//    액션바를 이용한 방법
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        if (item.getItemId() == android.R.id.home) {
-//            onBackPressed(); // 기본 뒤로가기 동작 실행
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    // 인덱스 번호 설정 메서드
+    public static void setSelectedMP3Index(int index) {
+        selectedMP3Index = index;
+    }
+
+    // 현재 설정된 인덱스 번호 반환 메서드
+    public static int getSelectedMP3Index() {
+        return selectedMP3Index;
+    }
+
 }
+

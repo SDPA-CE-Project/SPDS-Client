@@ -76,15 +76,15 @@ public class OndeviceActivity extends AppCompatActivity {
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount;
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
     private static final String model_2 = "model.tflite";
     private static final String model_3 = "upgraded_model_quantizated_dynamic.tflite";
-
+    private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
     private Interpreter interpreter;
-
+    private int sleepCount = 0;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA
     };
@@ -107,11 +107,11 @@ public class OndeviceActivity extends AppCompatActivity {
         txtRightEAR = findViewById(R.id.txtRightEAR);
         txtAvgEAR = findViewById(R.id.txtAvgEAR);
         txtMar = findViewById(R.id.txtMAR);
-
+        txtSleepCount = findViewById(R.id.txtStatCount);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         try {
-            interpreter = new Interpreter(loadModelFile(model_2));
+            interpreter = new Interpreter(loadModelFile(model_4));
         } catch (IOException e) {
             e.getMessage();
             throw new RuntimeException(e);
@@ -121,7 +121,7 @@ public class OndeviceActivity extends AppCompatActivity {
             startDetect();
         } else {
             ActivityCompat.requestPermissions(
-            this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+                    this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             );
         }
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -130,8 +130,9 @@ public class OndeviceActivity extends AppCompatActivity {
 
     private void startDetect() {
         LifecycleCameraController cameraController = new LifecycleCameraController(getBaseContext());
-        FaceDetectorOptions faceNoneOpt = new FaceDetectorOptions.Builder().
-                                                build();
+        FaceDetectorOptions faceNoneOpt = new FaceDetectorOptions.Builder()
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .build();
         faceDetector = FaceDetection.getClient(faceNoneOpt);
 
         cameraController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(this),
@@ -140,6 +141,7 @@ public class OndeviceActivity extends AppCompatActivity {
                     if (faceResult == null || faceResult.isEmpty()) {
                         previewView.getOverlay().clear();
                         graphicOverlay.clear();
+                        sleepCount = 0;
                     } else {
                         Bitmap fullImage = previewView.getBitmap();
                         Metadata metadata = new Metadata(faceResult.get(0));
@@ -151,8 +153,6 @@ public class OndeviceActivity extends AppCompatActivity {
                         TensorImage inputImageBuffer = new TensorImage(FLOAT32);
                         inputImageBuffer.load(croppedFace);
 
-
-                        //TensorBuffer outputBuffer = TensorBuffer.createFixedSize(new int[]{1, 64, 64, 68}, FLOAT32);
                         TensorBuffer outputBuffer2 = TensorBuffer.createFixedSize(new int[]{1, 136}, FLOAT32);
                         interpreter.run(inputImageBuffer.getBuffer(), outputBuffer2.getBuffer());
 
@@ -165,46 +165,37 @@ public class OndeviceActivity extends AppCompatActivity {
                         }
                         Log.d(TAG, Arrays.toString(resultArr));
                         LandmarkData landmark = new LandmarkData(resultArr, metadata);
-
-//                        float[][][][] outputArray = new float[1][64][64][68];
-//                        int index = 0;
-//                        for (int i = 0; i < outputArray.length; i++) {
-//                            for (int j = 0; j < outputArray[i].length; j++) {
-//                                for (int k = 0; k < outputArray[i][j].length; k++) {
-//                                    for (int l = 0; l < outputArray[i][j][k].length; l++) {
-//                                        outputArray[i][j][k][l] = flatArray[index++];
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        int[][] outputArray = new int[1][136];
-//                        int index = 0;
-//                        for (int i = 0; i < outputArray.length; i++) {
-//                            for (int j = 0; j < outputArray[i].length; j++) {
-//                                outputArray[i][j] = (int) (flatArray[index++] * 256);
-//                            }
-//                        }
-
-
-                        //Log.d(TAG, "Output array: " + Arrays.deepToString(outputArray));
-                        //DrawLandmark drawLandmark = new DrawLandmark(landmark, metadata);
-
-
-
+                        float leftEye = faceResult.get(0).getLeftEyeOpenProbability().floatValue();
+                        float rightEye = faceResult.get(0).getRightEyeOpenProbability().floatValue();
+                        float avg = (leftEye + rightEye)/2;
                         previewView.getOverlay().clear();
                         graphicOverlay.clear();
                         previewView.getOverlay().add(drawOverlay);
                         //previewView.getOverlay().add(drawLandmark);
 
                         graphicOverlay.add(new DrawLandmarkGraphic(graphicOverlay, landmark));
-                        txtLeftEAR.setText(String.format("%.4f", landmark.earLeft()));
-                        txtRightEAR.setText(String.format("%.4f", landmark.earRight()));
-                        txtAvgEAR.setText(String.format("%.4f", landmark.earAvg()));
+//                        txtLeftEAR.setText(String.format("%.4f", landmark.earLeft()));
+//                        txtRightEAR.setText(String.format("%.4f", landmark.earRight()));
+//                        txtAvgEAR.setText(String.format("%.4f", landmark.earAvg()));
+                        txtLeftEAR.setText(String.format("%.4f", leftEye));
+                        txtRightEAR.setText(String.format("%.4f", rightEye));
+                        txtAvgEAR.setText(String.format("%.4f", avg));
                         txtMar.setText(String.format("%.4f", landmark.marAvg()));
+
+                        if (avg < 0.3f && sleepCount <= 100) {
+                            sleepCount += 2;
+                        }
+                        else if (avg < 0.5f && sleepCount <= 100) {
+                            sleepCount += 1;
+                        }
+                        else if (sleepCount >= 0){
+                            sleepCount -= 5;
+                        }
 
                         imgView.setImageBitmap(croppedFace);
                         imgView.setVisibility(View.VISIBLE);
                     }
+                    sleepAlarm();
                 }));
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
@@ -215,24 +206,18 @@ public class OndeviceActivity extends AppCompatActivity {
         previewView.setController(cameraController);
 
     }
-//    private double calculateEuclideanDistance(int point1X, int point2X, int point1Y, int point2Y) {
-//        float dx = point1X - point2X;
-//        float dy = point1Y - point2Y;
-//        return Math.sqrt(dx * dx + dy * dy);
-//    }
-//    private double calculate_EAR(LandmarkData landmarkData) {
-//        int[] coordX = landmarkData.getMapCoordX();
-//        int[] coordY = landmarkData.getMapCoordY();
-//
-//        double A = calculateEuclideanDistance(coordX[37], coordX[40], coordY[37], coordY[40]);
-//        double B = calculateEuclideanDistance(coordX[38], coordX[41], coordY[38], coordY[41]);
-//        double C = calculateEuclideanDistance(coordX[36], coordX[39], coordY[36], coordY[39]);
-//        return (A + B) / (2.0 * C);
-//    }
-        private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
+    private void sleepAlarm() {
+        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
+//        PlaySong playSong = new PlaySong();
+//        if (sleepCount >= 30) {
+//            playSong.onCreate(null);
+//        }
+    }
+
+    private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
         int width = fullImage.getWidth();
         int height = fullImage.getHeight();
-        
+
         int left = boundingBox.left;
         int top = boundingBox.top;
         int right = boundingBox.right;
@@ -296,7 +281,7 @@ public class OndeviceActivity extends AppCompatActivity {
         return input;
     }
 
-//    private Interpreter getInterpreter(String path) {
+    //    private Interpreter getInterpreter(String path) {
 //        try {
 //            return new Interpreter(loadModelFile(this, path));
 //        } catch (Exception e) {

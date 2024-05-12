@@ -20,40 +20,18 @@
         android:layout_weight="1">
 
         <Button
-            android:id="@+id/btnPlay"
+            android:id="@+id/confirm"
             android:layout_weight="1"
-            android:layout_margin="3dp"
-            android:text="재생"
+            android:layout_margin="20dp"
+            android:text="확인"
             android:textSize="30dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_weight="1"
-            android:layout_margin="3dp"
-            android:textSize="30dp"
-            android:text="정지"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <TextView
-            android:id="@+id/tvMP3"
-            android:gravity="center"
-            android:text="실행중인 음악:"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
-
-        <ProgressBar
-            android:id="@+id/pbMP3"
-            android:visibility="invisible"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+    <TextView
+        android:id="@+id/number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="number"/>
 
 </LinearLayout>

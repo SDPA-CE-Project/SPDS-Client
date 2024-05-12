@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.AdapterView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,11 +49,43 @@ public class StepSettingActivity extends AppCompatActivity {
         spinner03.setSelection(2);
         spinner04.setSelection(3);
 
+//        spinner01.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                // 선택된 item을 토대로 main에서 작업이 일어나도록 설정
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
+
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), CameraStreamActivity.class);
-                startActivity(intent);
+                String selectedItem1 = spinner01.getSelectedItem().toString();
+                String selectedItem2 = spinner02.getSelectedItem().toString();
+                String selectedItem3 = spinner03.getSelectedItem().toString();
+                String selectedItem4 = spinner04.getSelectedItem().toString();
+
+                // 모든 항목이 서로 다른지 확인
+                if (!selectedItem1.equals(selectedItem2) && !selectedItem1.equals(selectedItem3) && !selectedItem1.equals(selectedItem4)
+                        && !selectedItem2.equals(selectedItem3) && !selectedItem2.equals(selectedItem4)
+                        && !selectedItem3.equals(selectedItem4)) {
+                    // 모두 다를 경우 다음 화면으로 이동하는 Intent 생성
+                    Intent intent = new Intent(StepSettingActivity.this, OndeviceActivity.class);
+                    // 선택된 항목들을 다음 화면으로 전달
+                    intent.putExtra("selectedItem1", selectedItem1);
+                    intent.putExtra("selectedItem2", selectedItem2);
+                    intent.putExtra("selectedItem3", selectedItem3);
+                    intent.putExtra("selectedItem4", selectedItem4);
+                    // 다음 화면으로 이동
+                    startActivity(intent);
+                } else {
+                    // 모두 다르지 않을 경우 토스트 메시지 출력
+                    Toast.makeText(StepSettingActivity.this, "항목을 모두 다르게 체크해주세요", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
