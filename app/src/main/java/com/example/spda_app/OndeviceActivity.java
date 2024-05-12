@@ -3,16 +3,12 @@ package com.example.spda_app;
 import static org.tensorflow.lite.DataType.FLOAT32;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -26,7 +22,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
-import com.example.spda_app.face_detect.DrawLandmark;
 import com.example.spda_app.face_detect.DrawLandmarkGraphic;
 import com.example.spda_app.face_detect.DrawOverlay;
 import com.example.spda_app.face_detect.GraphicOverlay;
@@ -34,18 +29,13 @@ import com.example.spda_app.face_detect.LandmarkData;
 import com.example.spda_app.face_detect.Metadata;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.mlkit.common.model.LocalModel;
-import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
 import com.google.mlkit.vision.face.FaceDetector;
 import com.google.mlkit.vision.face.FaceDetectorOptions;
-import com.google.mlkit.vision.objects.DetectedObject;
-import com.google.mlkit.vision.objects.ObjectDetection;
 import com.google.mlkit.vision.objects.ObjectDetector;
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -56,6 +46,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.util.Log;
 import android.view.View;
@@ -63,10 +54,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.image.TensorImage;
-import org.tensorflow.lite.support.label.TensorLabel;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
@@ -76,7 +65,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg;
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
@@ -85,6 +74,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
     private Interpreter interpreter;
     private int sleepCount = 0;
+    private float blinkAvg = 0;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA
     };
@@ -92,9 +82,10 @@ public class OndeviceActivity extends AppCompatActivity {
 
     private CustomObjectDetectorOptions customObjectDetectorOptions;
     private ObjectDetector objectDetector;
-
-
-
+    private int blinkCountPer10s = 0;
+    private int blinkCount = 0;
+    BackgroundTreadTime threadTime = new BackgroundTreadTime();
+    DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +99,8 @@ public class OndeviceActivity extends AppCompatActivity {
         txtAvgEAR = findViewById(R.id.txtAvgEAR);
         txtMar = findViewById(R.id.txtMAR);
         txtSleepCount = findViewById(R.id.txtStatCount);
+        txtBlinkCount = findViewById(R.id.txtBlinkCount);
+        txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         try {
@@ -119,6 +112,11 @@ public class OndeviceActivity extends AppCompatActivity {
 
         if (allPermissionsGranted()) {
             startDetect();
+            threadTime.start();
+            detectDrowzThread.start();
+            threadTime.setThread();
+            detectDrowzThread.setThread();
+
         } else {
             ActivityCompat.requestPermissions(
             this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
@@ -134,6 +132,7 @@ public class OndeviceActivity extends AppCompatActivity {
                                             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
                                             .build();
         faceDetector = FaceDetection.getClient(faceNoneOpt);
+        AtomicBoolean blinkCheck = new AtomicBoolean(false);
 
         cameraController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(this),
                 new MlKitAnalyzer(List.of(faceDetector), 1, ContextCompat.getMainExecutor(this), result -> {
@@ -142,6 +141,7 @@ public class OndeviceActivity extends AppCompatActivity {
                         previewView.getOverlay().clear();
                         graphicOverlay.clear();
                         sleepCount = 0;
+
                     } else {
                         Bitmap fullImage = previewView.getBitmap();
                         Metadata metadata = new Metadata(faceResult.get(0));
@@ -182,16 +182,28 @@ public class OndeviceActivity extends AppCompatActivity {
                         txtAvgEAR.setText(String.format("%.4f", avg));
                         txtMar.setText(String.format("%.4f", landmark.marAvg()));
 
-                        if (avg < 0.3f && sleepCount <= 100) {
-                            sleepCount += 2;
-                        }
-                        else if (avg < 0.5f && sleepCount <= 100) {
-                            sleepCount += 1;
-                        }
-                        else if (sleepCount >= 0){
-                            sleepCount -= 5;
-                        }
-
+                        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
+                        txtBlinkCount.setText(getString(R.string.blinkCount, blinkCount, blinkCountPer10s));
+                        txtBlinkAvg.setText(String.format("%.4f", blinkAvg));
+//                        if (avg < 0.3f && sleepCount <= 100) {
+//                            sleepCount += 4;
+//                            if(!blinkCheck.get()) {
+//                                blinkCheck.set(true);
+//                                threadTime.recordCount();
+//                            }
+//
+//                        }
+//                        else if (avg < 0.5f && sleepCount <= 100) {
+//                            sleepCount += 2;
+//                        }
+//                        else if (sleepCount >= 0){
+//                            sleepCount -= 5;
+//                            blinkCheck.set(false);
+//                        }
+//                        else {
+//                            blinkCheck.set(false);
+//                        }
+                        detectDrowzThread.setAvg(avg);
                         imgView.setImageBitmap(croppedFace);
                         imgView.setVisibility(View.VISIBLE);
                     }
@@ -206,8 +218,91 @@ public class OndeviceActivity extends AppCompatActivity {
         previewView.setController(cameraController);
 
     }
+
+    private class BackgroundTreadTime extends Thread {
+        private boolean running = false;
+        private int blinkCountPer60s = 1;
+        private int runCount = 0;
+        public void setThread() {
+            running = true;
+        }
+        public void stopThread() {
+            running = false;
+        }
+
+        public void recordCount() {
+            blinkCount++;
+        }
+        @Override
+        public void run() {
+            while (running) {
+                try {
+                    sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                blinkCountPer10s = blinkCount;
+                blinkCount = 0;
+                runCount++;
+                if(runCount <= 6) {
+                    blinkCountPer60s += blinkCountPer10s;
+                    blinkAvg = (float) blinkCountPer60s / runCount;
+                }
+                else if(runCount == 30) {
+                    runCount = 0;
+                    blinkCountPer60s = (int) blinkAvg;
+                }
+            }
+
+        }
+
+    }
+    private class DetectDrowzThread extends Thread {
+        private boolean running = false;
+        AtomicBoolean blinkCheck = new AtomicBoolean(false);
+        private float avg = 0;
+        public void setThread() {
+            running = true;
+        }
+        public void stopThread() {
+            running = false;
+        }
+        public void setAvg(float avg) {
+            this.avg = avg;
+        }
+        @Override
+        public void run() {
+            while (running) {
+                if (avg < 0.3f && sleepCount <= 100) {
+                    sleepCount += 4;
+                    if(!blinkCheck.get()) {
+                        blinkCheck.set(true);
+                        threadTime.recordCount();
+                    }
+                }
+                else if (avg < 0.5f && sleepCount <= 100) {
+                    sleepCount += 2;
+                }
+                else if (sleepCount >= 0){
+                    sleepCount -= 5;
+                    blinkCheck.set(false);
+                }
+                else {
+                    blinkCheck.set(false);
+                }
+
+
+                try {
+                    sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     private void sleepAlarm() {
-        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
+//        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         //....
     }
 
@@ -321,6 +416,7 @@ public class OndeviceActivity extends AppCompatActivity {
         super.onDestroy();
         cameraExecutor.shutdown();
         faceDetector.close();
+        threadTime.stopThread();
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
