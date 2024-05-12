@@ -81,4 +81,15 @@
         app:layout_constraintStart_toStartOf="@+id/txtAvgEAR"
         app:layout_constraintTop_toBottomOf="@+id/txtAvgEAR" />
 
+    <TextView
+        android:id="@+id/txtStatCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:text="@string/sleepStat"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtMAR"
+        app:layout_constraintStart_toStartOf="@+id/txtMAR"
+        app:layout_constraintTop_toBottomOf="@+id/txtMAR" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
