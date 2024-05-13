@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".OndeviceActivity">
+
     <androidx.camera.view.PreviewView
         android:id="@+id/vw_Preview"
         android:layout_width="0dp"
@@ -14,7 +15,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
+
     </androidx.camera.view.PreviewView>
+
     <ImageView
         android:id="@+id/imgview"
         android:layout_width="512px"
@@ -22,10 +25,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_delete" />
+
     <com.example.spda_app.face_detect.GraphicOverlay
         android:id="@+id/vw_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
     <TextView
         android:id="@+id/txtRightEAR"
         android:layout_width="90dp"
@@ -37,6 +42,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/txtLeftEAR"
         android:layout_width="90dp"
@@ -48,6 +54,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toStartOf="@+id/txtRightEAR"
         app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/txtAvgEAR"
         android:layout_width="90dp"
@@ -60,6 +67,7 @@
         app:layout_constraintEnd_toEndOf="@+id/txtRightEAR"
         app:layout_constraintStart_toStartOf="@+id/txtLeftEAR"
         app:layout_constraintTop_toBottomOf="@+id/txtRightEAR" />
+
     <TextView
         android:id="@+id/txtMAR"
         android:layout_width="90dp"
@@ -83,5 +91,29 @@
         app:layout_constraintEnd_toEndOf="@+id/txtMAR"
         app:layout_constraintStart_toStartOf="@+id/txtMAR"
         app:layout_constraintTop_toBottomOf="@+id/txtMAR" />
+
+    <TextView
+        android:id="@+id/txtBlinkCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/blinkCount"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtStatCount"
+        app:layout_constraintStart_toStartOf="@+id/txtStatCount"
+        app:layout_constraintTop_toBottomOf="@+id/txtStatCount" />
+
+    <TextView
+        android:id="@+id/txtBlinkAvg"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtBlinkCount"
+        app:layout_constraintStart_toStartOf="@+id/txtBlinkCount"
+        app:layout_constraintTop_toBottomOf="@+id/txtBlinkCount" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

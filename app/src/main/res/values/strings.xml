@@ -30,4 +30,5 @@
     <string name="default_spinner_text2">2단계 알람설정</string>
     <string name="default_spinner_text3">3단계 알람설정</string>
     <string name="default_spinner_text4">4단계 알람설정</string>
+    <string name="blinkCount">%1$d | %2$d</string>
 </resources>
