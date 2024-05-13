@@ -114,6 +114,11 @@ public class OndeviceActivity extends AppCompatActivity {
 
         if (allPermissionsGranted()) {
             startDetect();
+            threadTime.start();
+            detectDrowzThread.start();
+            threadTime.setThread();
+            detectDrowzThread.setThread();
+
         } else {
             ActivityCompat.requestPermissions(
             this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
