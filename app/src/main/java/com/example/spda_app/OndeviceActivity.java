@@ -86,6 +86,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private int blinkCount = 0;
     BackgroundTreadTime threadTime = new BackgroundTreadTime();
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
+    PlayAlarmThread alarmThread = new PlayAlarmThread(this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,24 +186,7 @@ public class OndeviceActivity extends AppCompatActivity {
                         txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
                         txtBlinkCount.setText(getString(R.string.blinkCount, blinkCount, blinkCountPer10s));
                         txtBlinkAvg.setText(String.format("%.4f", blinkAvg));
-//                        if (avg < 0.3f && sleepCount <= 100) {
-//                            sleepCount += 4;
-//                            if(!blinkCheck.get()) {
-//                                blinkCheck.set(true);
-//                                threadTime.recordCount();
-//                            }
-//
-//                        }
-//                        else if (avg < 0.5f && sleepCount <= 100) {
-//                            sleepCount += 2;
-//                        }
-//                        else if (sleepCount >= 0){
-//                            sleepCount -= 5;
-//                            blinkCheck.set(false);
-//                        }
-//                        else {
-//                            blinkCheck.set(false);
-//                        }
+
                         detectDrowzThread.setAvg(avg);
                         imgView.setImageBitmap(croppedFace);
                         imgView.setVisibility(View.VISIBLE);
@@ -290,7 +274,6 @@ public class OndeviceActivity extends AppCompatActivity {
                 else {
                     blinkCheck.set(false);
                 }
-
 
                 try {
                     sleep(50);
