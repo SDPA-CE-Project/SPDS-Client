@@ -1,7 +1,9 @@
-package com.example.spda_app;
+package com.example.spda_app.threads;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+
+import com.example.spda_app.R;
 
 public class PlayAlarmThread implements Runnable{
     int level = 1;

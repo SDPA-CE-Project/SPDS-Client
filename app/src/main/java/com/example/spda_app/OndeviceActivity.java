@@ -28,6 +28,7 @@ import com.example.spda_app.face_detect.GraphicOverlay;
 import com.example.spda_app.face_detect.LandmarkData;
 import com.example.spda_app.face_detect.Metadata;
 
+import com.example.spda_app.threads.PlayAlarmThread;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -65,7 +66,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg;
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
@@ -74,6 +75,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
     private Interpreter interpreter;
     private int sleepCount = 0;
+    private float closeTimeAvg = 0;
     private float blinkAvg = 0;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA
@@ -84,7 +86,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private ObjectDetector objectDetector;
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
-    BackgroundTreadTime threadTime = new BackgroundTreadTime();
+    BlinkCountThread blinkCountThread = new BlinkCountThread();
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
     PlayAlarmThread alarmThread = new PlayAlarmThread(this);
     @Override
@@ -102,6 +104,7 @@ public class OndeviceActivity extends AppCompatActivity {
         txtSleepCount = findViewById(R.id.txtStatCount);
         txtBlinkCount = findViewById(R.id.txtBlinkCount);
         txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
+        txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
         try {
@@ -113,9 +116,9 @@ public class OndeviceActivity extends AppCompatActivity {
 
         if (allPermissionsGranted()) {
             startDetect();
-            threadTime.start();
+            blinkCountThread.start();
             detectDrowzThread.start();
-            threadTime.setThread();
+            blinkCountThread.setThread();
             detectDrowzThread.setThread();
 
         } else {
@@ -186,6 +189,7 @@ public class OndeviceActivity extends AppCompatActivity {
                         txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
                         txtBlinkCount.setText(getString(R.string.blinkCount, blinkCount, blinkCountPer10s));
                         txtBlinkAvg.setText(String.format("%.4f", blinkAvg));
+                        txtCloseTimeAvg.setText(String.format("%4f", closeTimeAvg));
 
                         detectDrowzThread.setAvg(avg);
                         imgView.setImageBitmap(croppedFace);
@@ -203,8 +207,9 @@ public class OndeviceActivity extends AppCompatActivity {
 
     }
 
-    private class BackgroundTreadTime extends Thread {
+    private class BlinkCountThread extends Thread {
         private boolean running = false;
+        private int timeCount = 0;
         private int blinkCountPer60s = 1;
         private int runCount = 0;
         public void setThread() {
@@ -237,12 +242,12 @@ public class OndeviceActivity extends AppCompatActivity {
                     blinkCountPer60s = (int) blinkAvg;
                 }
             }
-
         }
-
     }
     private class DetectDrowzThread extends Thread {
         private boolean running = false;
+        private int count = 0;
+        private int blinkInterval = 0;
         AtomicBoolean blinkCheck = new AtomicBoolean(false);
         private float avg = 0;
         public void setThread() {
@@ -257,26 +262,39 @@ public class OndeviceActivity extends AppCompatActivity {
         @Override
         public void run() {
             while (running) {
-                if (avg < 0.3f && sleepCount <= 100) {
-                    sleepCount += 4;
+                if (avg < 0.3f && sleepCount < 300) {
+                    sleepCount += 1;
                     if(!blinkCheck.get()) {
                         blinkCheck.set(true);
-                        threadTime.recordCount();
+                        blinkCountThread.recordCount();
                     }
                 }
-                else if (avg < 0.5f && sleepCount <= 100) {
-                    sleepCount += 2;
+                else if (avg < 0.6f && sleepCount < 300) {
+                    sleepCount += 1;
                 }
-                else if (sleepCount >= 0){
-                    sleepCount -= 5;
+                else if (avg >= 0.7f && sleepCount > 10) {
                     blinkCheck.set(false);
+                    count += 1;
+                    closeTimeAvg = closeTimeAvg + (float)((float)(sleepCount-closeTimeAvg)/(count+1));
+                    sleepCount = 0;
+
+                    try {
+                        sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-                else {
+                else if (avg >= 0.7 && sleepCount <= 10) {
                     blinkCheck.set(false);
+                    sleepCount = 0;
+                }
+                if (count > 10000000) {
+                    count = 0;
+                    closeTimeAvg = sleepCount;
                 }
 
                 try {
-                    sleep(50);
+                    sleep(50); //0.05sec
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -399,7 +417,7 @@ public class OndeviceActivity extends AppCompatActivity {
         super.onDestroy();
         cameraExecutor.shutdown();
         faceDetector.close();
-        threadTime.stopThread();
+        blinkCountThread.stopThread();
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
