@@ -66,7 +66,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel;
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
@@ -106,6 +106,7 @@ public class OndeviceActivity extends AppCompatActivity {
         txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
 
         try {
             interpreter = new Interpreter(loadModelFile(model_4));
@@ -188,8 +189,8 @@ public class OndeviceActivity extends AppCompatActivity {
 
                         txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
                         txtBlinkCount.setText(getString(R.string.blinkCount, blinkCount, blinkCountPer10s));
-                        txtBlinkAvg.setText(String.format("%.4f", blinkAvg));
-                        txtCloseTimeAvg.setText(String.format("%4f", closeTimeAvg));
+                        txtBlinkAvg.setText(getString(R.string.blinkAvg, blinkAvg));
+                        txtCloseTimeAvg.setText(getString(R.string.closeTime, closeTimeAvg));
 
                         detectDrowzThread.setAvg(avg);
                         imgView.setImageBitmap(croppedFace);
@@ -214,6 +215,9 @@ public class OndeviceActivity extends AppCompatActivity {
         private int runCount = 0;
         public void setThread() {
             running = true;
+        }
+        public int getBlinkRunCount() {
+            return timeCount;
         }
         public void stopThread() {
             running = false;
@@ -262,35 +266,25 @@ public class OndeviceActivity extends AppCompatActivity {
         @Override
         public void run() {
             while (running) {
-                if (avg < 0.3f && sleepCount < 300) {
-                    sleepCount += 1;
+                if (avg < 0.3f && sleepCount < 200) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
+                    sleepCount += 2;
                     if(!blinkCheck.get()) {
                         blinkCheck.set(true);
                         blinkCountThread.recordCount();
                     }
                 }
-                else if (avg < 0.6f && sleepCount < 300) {
+                else if (avg < 0.6f && sleepCount < 200) { //눈 0.6 미만 sleepCount 증가
                     sleepCount += 1;
                 }
-                else if (avg >= 0.7f && sleepCount > 10) {
+                else if (avg >= 0.7f) { // 눈 0.7 이상 눈 뜸 확인, 깜빡임 증가, 감은 시간 평균, sleepCount 초기화
                     blinkCheck.set(false);
                     count += 1;
                     closeTimeAvg = closeTimeAvg + (float)((float)(sleepCount-closeTimeAvg)/(count+1));
                     sleepCount = 0;
-
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
                 }
-                else if (avg >= 0.7 && sleepCount <= 10) {
-                    blinkCheck.set(false);
-                    sleepCount = 0;
-                }
-                if (count > 10000000) {
+                if (count > 200) {
                     count = 0;
-                    closeTimeAvg = sleepCount;
+                    closeTimeAvg = 1;
                 }
 
                 try {
@@ -304,7 +298,23 @@ public class OndeviceActivity extends AppCompatActivity {
 
     private void sleepAlarm() {
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
-        //....
+        int timeCount = blinkCountThread.getBlinkRunCount();
+            if(sleepCount > 150){
+                //알람 3단계
+                txtAlarmLevel.setText(getString(R.string.level_3));
+            }
+            else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
+                //알람 2단계
+                txtAlarmLevel.setText(getString(R.string.level_2));
+            }
+            else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6) || sleepCount > 50) {
+                //알람 1단계
+                txtAlarmLevel.setText(getString(R.string.level_1));
+            }
+            else {
+                txtAlarmLevel.setText(getString(R.string.standby));
+            }
+
     }
 
     private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
