@@ -57,8 +57,9 @@
 
     <TextView
         android:id="@+id/txtAvgEAR"
-        android:layout_width="90dp"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
         android:background="#FFFFFF"
         android:gravity="center"
         android:text="@string/standby"
@@ -70,8 +71,9 @@
 
     <TextView
         android:id="@+id/txtMAR"
-        android:layout_width="90dp"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
         android:background="#FFFFFF"
         android:gravity="center"
         android:text="@string/standby"
@@ -83,8 +85,9 @@
 
     <TextView
         android:id="@+id/txtStatCount"
-        android:layout_width="wrap_content"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
         android:background="#FFFFFF"
         android:text="@string/sleepStat"
         android:textSize="20sp"
@@ -96,24 +99,48 @@
         android:id="@+id/txtBlinkCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
         android:background="#FFFFFF"
         android:gravity="center"
         android:text="@string/blinkCount"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/txtStatCount"
-        app:layout_constraintStart_toStartOf="@+id/txtStatCount"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtStatCount" />
 
     <TextView
         android:id="@+id/txtBlinkAvg"
-        android:layout_width="90dp"
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/blinkAvg"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtBlinkCount" />
+
+    <TextView
+        android:id="@+id/txtCloseTimeAvg"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/closeTime"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtBlinkAvg" />
+
+    <TextView
+        android:id="@+id/txtDrozeWarn"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
         android:background="#FFFFFF"
         android:gravity="center"
         android:text="@string/standby"
         android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="@+id/txtBlinkCount"
-        app:layout_constraintStart_toStartOf="@+id/txtBlinkCount"
-        app:layout_constraintTop_toBottomOf="@+id/txtBlinkCount" />
+        app:layout_constraintEnd_toEndOf="@+id/vw_Preview"
+        app:layout_constraintTop_toBottomOf="@+id/txtCloseTimeAvg" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

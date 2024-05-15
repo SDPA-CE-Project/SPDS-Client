@@ -61,6 +61,20 @@ public class StepSettingActivity extends AppCompatActivity {
 //            }
 //        });
 
+//        binding.abc.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                switch (SongSettingActivity.getSelectedMP3Index()) {
+//                    case 0:
+//                        Toast.makeText(getApplicationContext(), "0번", Toast.LENGTH_SHORT).show();
+//                        break;
+//                    case 1:
+//                        Toast.makeText(getApplicationContext(), "1번", Toast.LENGTH_SHORT).show();
+//                        break;
+//                }
+//            }
+//        });
+
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
