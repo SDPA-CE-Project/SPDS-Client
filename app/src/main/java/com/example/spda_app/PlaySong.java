@@ -1,5 +1,6 @@
 package com.example.spda_app;
 
+import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -15,25 +16,18 @@ public class PlaySong extends AppCompatActivity {
     private SoundPool soundPool;
     private int soundID;
     private boolean loaded = false;
-
+    private boolean isPlaying = false; // 재생 중인지 여부를 나타내는 변수 추가
     private int selectedMP3Index;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    private Context context;
 
-        // SongSettingActivity에서 선택된 음악의 인덱스를 가져옴
-        selectedMP3Index = SongSettingActivity.getSelectedMP3Index();
-
-        // SoundPool 초기화
-        initSoundPool(selectedMP3Index);
-
-        // 음악을 실행하는 로직
-        playMusic();
+    public PlaySong(Context context) {
+        this.context = context;
+        initSoundPool();
     }
 
     // SoundPool 초기화 메서드
-    private void initSoundPool(int selectedMP3Index) {
+    private void initSoundPool() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_GAME)
@@ -51,30 +45,40 @@ public class PlaySong extends AppCompatActivity {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
                 loaded = true;
+                onMusicCompletion();
             }
         });
 
+        selectedMP3Index = SongSettingActivity.getSelectedMP3Index();
+
         switch (selectedMP3Index) {
             case 0:
-                soundID = soundPool.load(this, R.raw.song_1, 1);
+                soundID = soundPool.load(context, R.raw.song_1, 1);
                 break;
             case 1:
-                soundID = soundPool.load(this, R.raw.song_2, 1);
+                soundID = soundPool.load(context, R.raw.song_2, 1);
                 break;
             case 2:
-                soundID = soundPool.load(this, R.raw.song_3, 1);
+                soundID = soundPool.load(context, R.raw.song_3, 1);
                 break;
             default:
                 break;
         }
     }
-
-
     // 선택된 음악을 재생하는 메서드
-    private void playMusic() {
-        if (loaded) {
-            // SoundPool을 사용하여 음악 재생
-            soundPool.play(soundID, 1, 1, 1, 0, 1);
+    public void playMusic() {
+        if (loaded && !isPlaying) { // 재생 중이 아닌 경우에만 재생
+            isPlaying = true;
+            soundPool.play(soundID, 10, 10, 1, 0, 1);
         }
+    }
+
+    // 노래 재생 완료 시 호출되는 메서드
+    public void onMusicCompletion() {
+        isPlaying = false; // 재생 상태 업데이트
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
     }
 }

@@ -55,10 +55,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.image.TensorImage;
-import org.tensorflow.lite.support.label.TensorLabel;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
@@ -79,6 +77,8 @@ public class OndeviceActivity extends AppCompatActivity {
     private int sleepCount = 0;
     private float closeTimeAvg = 0;
     private float blinkAvg = 0;
+    private PlaySong playSong;
+    private PlayMedia playMedia;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA
     };
@@ -110,8 +110,11 @@ public class OndeviceActivity extends AppCompatActivity {
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
 
+//        playSong = new PlaySong(this);
+        playMedia = new PlayMedia(this);
+
         try {
-            interpreter = new Interpreter(loadModelFile(model_2));
+            interpreter = new Interpreter(loadModelFile(model_4));
         } catch (IOException e) {
             e.getMessage();
             throw new RuntimeException(e);
@@ -126,7 +129,7 @@ public class OndeviceActivity extends AppCompatActivity {
 
         } else {
             ActivityCompat.requestPermissions(
-            this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+                    this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             );
         }
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -136,8 +139,8 @@ public class OndeviceActivity extends AppCompatActivity {
     private void startDetect() {
         LifecycleCameraController cameraController = new LifecycleCameraController(getBaseContext());
         FaceDetectorOptions faceNoneOpt = new FaceDetectorOptions.Builder()
-                                            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-                                            .build();
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .build();
         faceDetector = FaceDetection.getClient(faceNoneOpt);
         AtomicBoolean blinkCheck = new AtomicBoolean(false);
 
@@ -160,8 +163,6 @@ public class OndeviceActivity extends AppCompatActivity {
                         TensorImage inputImageBuffer = new TensorImage(FLOAT32);
                         inputImageBuffer.load(croppedFace);
 
-
-                        //TensorBuffer outputBuffer = TensorBuffer.createFixedSize(new int[]{1, 64, 64, 68}, FLOAT32);
                         TensorBuffer outputBuffer2 = TensorBuffer.createFixedSize(new int[]{1, 136}, FLOAT32);
                         interpreter.run(inputImageBuffer.getBuffer(), outputBuffer2.getBuffer());
 
@@ -303,28 +304,30 @@ public class OndeviceActivity extends AppCompatActivity {
     private void sleepAlarm() {
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         int timeCount = blinkCountThread.getBlinkRunCount();
-            if(sleepCount > 150){
-                //알람 3단계
-                txtAlarmLevel.setText(getString(R.string.level_3));
-            }
-            else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
-                //알람 2단계
-                txtAlarmLevel.setText(getString(R.string.level_2));
-            }
-            else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6) || sleepCount > 50) {
-                //알람 1단계
-                txtAlarmLevel.setText(getString(R.string.level_1));
-            }
-            else {
-                txtAlarmLevel.setText(getString(R.string.standby));
-            }
-
+        if(sleepCount > 150){
+            //알람 3단계
+            txtAlarmLevel.setText(getString(R.string.level_3));
+        }
+        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
+            //알람 2단계
+            txtAlarmLevel.setText(getString(R.string.level_2));
+            playMedia.stopMusic();
+        }
+        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || sleepCount > 50) {
+            //알람 1단계
+            txtAlarmLevel.setText(getString(R.string.level_1));
+            playMedia.playMusic();
+        }
+        else {
+            txtAlarmLevel.setText(getString(R.string.standby));
+            playMedia.stopMusic();
+        }
     }
 
     private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
         int width = fullImage.getWidth();
         int height = fullImage.getHeight();
-        
+
         int left = boundingBox.left;
         int top = boundingBox.top;
         int right = boundingBox.right;
@@ -388,7 +391,7 @@ public class OndeviceActivity extends AppCompatActivity {
         return input;
     }
 
-//    private Interpreter getInterpreter(String path) {
+    //    private Interpreter getInterpreter(String path) {
 //        try {
 //            return new Interpreter(loadModelFile(this, path));
 //        } catch (Exception e) {
