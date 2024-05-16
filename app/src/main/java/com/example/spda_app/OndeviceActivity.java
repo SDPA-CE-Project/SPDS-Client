@@ -109,8 +109,10 @@ public class OndeviceActivity extends AppCompatActivity {
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
+
 //        playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
+
         try {
             interpreter = new Interpreter(loadModelFile(model_4));
         } catch (IOException e) {
