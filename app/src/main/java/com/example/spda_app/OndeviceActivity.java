@@ -55,8 +55,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.label.TensorLabel;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
@@ -109,7 +111,7 @@ public class OndeviceActivity extends AppCompatActivity {
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
 
         try {
-            interpreter = new Interpreter(loadModelFile(model_4));
+            interpreter = new Interpreter(loadModelFile(model_2));
         } catch (IOException e) {
             e.getMessage();
             throw new RuntimeException(e);
@@ -158,6 +160,8 @@ public class OndeviceActivity extends AppCompatActivity {
                         TensorImage inputImageBuffer = new TensorImage(FLOAT32);
                         inputImageBuffer.load(croppedFace);
 
+
+                        //TensorBuffer outputBuffer = TensorBuffer.createFixedSize(new int[]{1, 64, 64, 68}, FLOAT32);
                         TensorBuffer outputBuffer2 = TensorBuffer.createFixedSize(new int[]{1, 136}, FLOAT32);
                         interpreter.run(inputImageBuffer.getBuffer(), outputBuffer2.getBuffer());
 
