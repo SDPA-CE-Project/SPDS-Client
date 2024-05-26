@@ -66,7 +66,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel, txtNoseMouthRatio;
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
@@ -74,6 +74,10 @@ public class OndeviceActivity extends AppCompatActivity {
     private static final String model_3 = "upgraded_model_quantizated_dynamic.tflite";
     private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
     private Interpreter interpreter;
+
+    private double NMRatio = 0;
+    private int lowerHead = 0;
+
     private int sleepCount = 0;
     private float closeTimeAvg = 0;
     private float blinkAvg = 0;
@@ -107,6 +111,8 @@ public class OndeviceActivity extends AppCompatActivity {
         txtBlinkCount = findViewById(R.id.txtBlinkCount);
         txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
+
+        txtNoseMouthRatio = findViewById(R.id.txtNMRatio);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
 
@@ -196,7 +202,8 @@ public class OndeviceActivity extends AppCompatActivity {
                         txtBlinkCount.setText(getString(R.string.blinkCount, blinkCount, blinkCountPer10s));
                         txtBlinkAvg.setText(getString(R.string.blinkAvg, blinkAvg));
                         txtCloseTimeAvg.setText(getString(R.string.closeTime, closeTimeAvg));
-
+                        NMRatio = landmark.noseMouthDistanceRatio();
+                        txtNoseMouthRatio.setText(String.format("%.4f", NMRatio));
                         detectDrowzThread.setAvg(avg);
                         imgView.setImageBitmap(croppedFace);
                         imgView.setVisibility(View.VISIBLE);
@@ -271,6 +278,22 @@ public class OndeviceActivity extends AppCompatActivity {
         @Override
         public void run() {
             while (running) {
+
+                if(NMRatio > 1.1f)  //고개 내림 감지, 해당 임계 값은 모델 개선 테스트 후 수정 되어야 하거나 사용자 마다 다르게 해야할 필요성이 있음
+                {
+                    lowerHead += 1;
+                }
+                else {
+                    lowerHead -= 1;
+                    if(lowerHead > 50)  //위험 단계 일때 고개가 정면을 볼 경우 더 빨리 경고에서 빠져 나오도록 해줌
+                        lowerHead -= 1;
+                    if(lowerHead < 0)
+                        lowerHead = 0;
+                }
+
+
+
+
                 if (avg < 0.3f && sleepCount < 200) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
                     sleepCount += 2;
                     if(!blinkCheck.get()) {
@@ -308,12 +331,12 @@ public class OndeviceActivity extends AppCompatActivity {
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
         }
-        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
+        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100 || lowerHead > 100) {
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
             playMedia.stopMusic();
         }
-        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || sleepCount > 50) {
+        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || sleepCount > 50 || lowerHead > 50) {
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
             playMedia.playMusic();
