@@ -16,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
 
+
     </androidx.camera.view.PreviewView>
 
     <ImageView
@@ -165,9 +166,17 @@
             android:id="@+id/lineChart"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="32dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/totallineChart"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="32dp" />
 
         <Button
             android:id="@+id/debugingToggle"
