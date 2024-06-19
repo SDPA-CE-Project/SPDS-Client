@@ -9,7 +9,7 @@
         android:layout_weight="6">
 
         <ListView
-            android:id="@+id/listViewVibration"
+            android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>

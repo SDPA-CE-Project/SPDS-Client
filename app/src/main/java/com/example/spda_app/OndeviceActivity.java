@@ -79,6 +79,7 @@ public class OndeviceActivity extends AppCompatActivity {
     private float blinkAvg = 0;
     private PlaySong playSong;
     private PlayMedia playMedia;
+    private PlayVibrate playVibrate;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA
     };
@@ -109,8 +110,9 @@ public class OndeviceActivity extends AppCompatActivity {
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
-//        playSong = new PlaySong(this);
+        playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
+        playVibrate = new PlayVibrate(this);
         try {
             interpreter = new Interpreter(loadModelFile(model_4));
         } catch (IOException e) {
@@ -305,20 +307,28 @@ public class OndeviceActivity extends AppCompatActivity {
         if(sleepCount > 150){
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
+            playSong.stopSound();
+            playVibrate.playVibrate();
         }
         else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
+            playSong.playMusic();
             playMedia.stopMusic();
+            playVibrate.stopVibration();
         }
         else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || sleepCount > 50) {
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
+            playSong.stopSound();
             playMedia.playMusic();
+            playVibrate.stopVibration();
         }
         else {
             txtAlarmLevel.setText(getString(R.string.standby));
             playMedia.stopMusic();
+            playSong.stopSound();
+            playVibrate.stopVibration();
         }
     }
 

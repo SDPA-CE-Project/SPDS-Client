@@ -45,7 +45,7 @@ public class SongSettingActivity extends AppCompatActivity {
         mp3List.add("Song 3");
 
         // 리스트뷰 설정 및 어댑터 설정...
-        listViewMP3 = findViewById(R.id.listViewMP3);
+        listViewMP3 = binding.listViewMP3;
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_single_choice, mp3List);
         listViewMP3.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         listViewMP3.setAdapter(adapter);

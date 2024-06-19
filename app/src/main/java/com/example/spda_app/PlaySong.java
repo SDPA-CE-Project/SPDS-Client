@@ -15,9 +15,9 @@ import java.io.IOException;
 public class PlaySong extends AppCompatActivity {
     private SoundPool soundPool;
     private int soundID;
-    private boolean loaded = false;
     private boolean isPlaying = false; // 재생 중인지 여부를 나타내는 변수 추가
-    private int selectedMP3Index;
+    private int selectedIndex;
+    private int streamId = -1;
 
     private Context context;
 
@@ -44,22 +44,21 @@ public class PlaySong extends AppCompatActivity {
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                loaded = true;
                 onMusicCompletion();
             }
         });
 
-        selectedMP3Index = SongSettingActivity.getSelectedMP3Index();
+        selectedIndex = AlarmbellSettingActivity.getSelectedIndex();
 
-        switch (selectedMP3Index) {
+        switch (selectedIndex) {
             case 0:
-                soundID = soundPool.load(context, R.raw.song_1, 1);
+                soundID = soundPool.load(context, R.raw.bell1, 1);
                 break;
             case 1:
-                soundID = soundPool.load(context, R.raw.song_2, 1);
+                soundID = soundPool.load(context, R.raw.bell2, 1);
                 break;
             case 2:
-                soundID = soundPool.load(context, R.raw.song_3, 1);
+                soundID = soundPool.load(context, R.raw.bell3, 1);
                 break;
             default:
                 break;
@@ -67,9 +66,9 @@ public class PlaySong extends AppCompatActivity {
     }
     // 선택된 음악을 재생하는 메서드
     public void playMusic() {
-        if (loaded && !isPlaying) { // 재생 중이 아닌 경우에만 재생
+        if (!isPlaying) { // 재생 중이 아닌 경우에만 재생
+            streamId = soundPool.play(soundID, 1.0f, 1.0f, 1, -1, 1.0f);
             isPlaying = true;
-            soundPool.play(soundID, 10, 10, 1, 0, 1);
         }
     }
 
@@ -80,5 +79,14 @@ public class PlaySong extends AppCompatActivity {
 
     public boolean isPlaying() {
         return isPlaying;
+    }
+
+    public void stopSound() {
+        if (isPlaying && streamId != -1) {
+            soundPool.stop(streamId);
+            streamId = soundPool.play(soundID, 1.0f, 1.0f, 1, 0, 1.0f); // 초기 상태로 돌리기 위해 다시 재생
+            soundPool.stop(streamId); // 바로 중지하여 재생 위치를 초기 상태로
+            isPlaying = false;
+        }
     }
 }

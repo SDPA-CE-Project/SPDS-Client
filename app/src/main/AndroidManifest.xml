@@ -44,8 +44,17 @@
             </intent-filter>
         </activity>
         <activity android:name=".AlarmSettingActivity" />
-        <activity android:name=".VibrationSettingActivity" />
+        <activity
+            android:name=".VibrationSettingActivity"
+            android:exported="false"
+            android:parentActivityName=".AlarmSettingActivity"
+            android:theme="@style/Theme.Actionbar"/>
         <activity android:name=".StepSettingActivity" />
+        <activity
+            android:name=".AlarmbellSettingActivity"
+            android:exported="false"
+            android:parentActivityName=".AlarmSettingActivity"
+            android:theme="@style/Theme.Actionbar"/>
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />

@@ -1,24 +1,16 @@
 package com.example.spda_app;
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.example.spda_app.databinding.ActivityMainBinding;
 import com.example.spda_app.databinding.AlarmSettingBinding;
-
-import java.lang.annotation.Inherited;
 
 public class AlarmSettingActivity extends AppCompatActivity {
 
@@ -57,7 +49,7 @@ public class AlarmSettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                Intent intent = new Intent(v.getContext(),AlarmbellSetting.class);
+                Intent intent = new Intent(v.getContext(), AlarmbellSettingActivity.class);
                 startActivity(intent);
             }
         });
