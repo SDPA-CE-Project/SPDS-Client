@@ -29,6 +29,7 @@ import com.example.spda_app.face_detect.GraphicOverlay;
 import com.example.spda_app.face_detect.LandmarkData;
 import com.example.spda_app.face_detect.Metadata;
 
+import com.example.spda_app.threads.PlayAlarmThread;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -60,10 +61,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.image.TensorImage;
-import org.tensorflow.lite.support.label.TensorLabel;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
@@ -74,7 +73,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private ExecutorService cameraExecutor;
     private Button btnLogout;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel;
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
@@ -83,7 +82,10 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
     private Interpreter interpreter;
     private int sleepCount = 0;
+    private float closeTimeAvg = 0;
     private float blinkAvg = 0;
+    private PlaySong playSong;
+    private PlayMedia playMedia;
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA
     };
@@ -93,9 +95,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private ObjectDetector objectDetector;
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
+<<<<<<< HEAD
     private FirebaseAuth mAuth;
     BackgroundTreadTime threadTime = new BackgroundTreadTime();
+=======
+    BlinkCountThread blinkCountThread = new BlinkCountThread();
+>>>>>>> e1905fb357903e7599e177c2528f899cd5e9903c
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
+    PlayAlarmThread alarmThread = new PlayAlarmThread(this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,13 +119,18 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         txtSleepCount = findViewById(R.id.txtStatCount);
         txtBlinkCount = findViewById(R.id.txtBlinkCount);
         txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
+        txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
+
+//        playSong = new PlaySong(this);
+        playMedia = new PlayMedia(this);
 
         // Logout 전용 firebase 연동
         mAuth = FirebaseAuth.getInstance();
 
         try {
-            interpreter = new Interpreter(loadModelFile(model_2));
+            interpreter = new Interpreter(loadModelFile(model_4));
         } catch (IOException e) {
             e.getMessage();
             throw new RuntimeException(e);
@@ -126,14 +138,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         if (allPermissionsGranted()) {
             startDetect();
-            threadTime.start();
+            blinkCountThread.start();
             detectDrowzThread.start();
-            threadTime.setThread();
+            blinkCountThread.setThread();
             detectDrowzThread.setThread();
 
         } else {
             ActivityCompat.requestPermissions(
-            this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+                    this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             );
         }
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -163,8 +175,8 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private void startDetect() {
         LifecycleCameraController cameraController = new LifecycleCameraController(getBaseContext());
         FaceDetectorOptions faceNoneOpt = new FaceDetectorOptions.Builder()
-                                            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
-                                            .build();
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .build();
         faceDetector = FaceDetection.getClient(faceNoneOpt);
         AtomicBoolean blinkCheck = new AtomicBoolean(false);
 
@@ -187,8 +199,6 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                         TensorImage inputImageBuffer = new TensorImage(FLOAT32);
                         inputImageBuffer.load(croppedFace);
 
-
-                        //TensorBuffer outputBuffer = TensorBuffer.createFixedSize(new int[]{1, 64, 64, 68}, FLOAT32);
                         TensorBuffer outputBuffer2 = TensorBuffer.createFixedSize(new int[]{1, 136}, FLOAT32);
                         interpreter.run(inputImageBuffer.getBuffer(), outputBuffer2.getBuffer());
 
@@ -220,25 +230,9 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
                         txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
                         txtBlinkCount.setText(getString(R.string.blinkCount, blinkCount, blinkCountPer10s));
-                        txtBlinkAvg.setText(String.format("%.4f", blinkAvg));
-//                        if (avg < 0.3f && sleepCount <= 100) {
-//                            sleepCount += 4;
-//                            if(!blinkCheck.get()) {
-//                                blinkCheck.set(true);
-//                                threadTime.recordCount();
-//                            }
-//
-//                        }
-//                        else if (avg < 0.5f && sleepCount <= 100) {
-//                            sleepCount += 2;
-//                        }
-//                        else if (sleepCount >= 0){
-//                            sleepCount -= 5;
-//                            blinkCheck.set(false);
-//                        }
-//                        else {
-//                            blinkCheck.set(false);
-//                        }
+                        txtBlinkAvg.setText(getString(R.string.blinkAvg, blinkAvg));
+                        txtCloseTimeAvg.setText(getString(R.string.closeTime, closeTimeAvg));
+
                         detectDrowzThread.setAvg(avg);
                         imgView.setImageBitmap(croppedFace);
                         imgView.setVisibility(View.VISIBLE);
@@ -255,12 +249,16 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private class BackgroundTreadTime extends Thread {
+    private class BlinkCountThread extends Thread {
         private boolean running = false;
+        private int timeCount = 0;
         private int blinkCountPer60s = 1;
         private int runCount = 0;
         public void setThread() {
             running = true;
+        }
+        public int getBlinkRunCount() {
+            return timeCount;
         }
         public void stopThread() {
             running = false;
@@ -289,12 +287,12 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                     blinkCountPer60s = (int) blinkAvg;
                 }
             }
-
         }
-
     }
     private class DetectDrowzThread extends Thread {
         private boolean running = false;
+        private int count = 0;
+        private int blinkInterval = 0;
         AtomicBoolean blinkCheck = new AtomicBoolean(false);
         private float avg = 0;
         public void setThread() {
@@ -309,27 +307,29 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void run() {
             while (running) {
-                if (avg < 0.3f && sleepCount <= 100) {
-                    sleepCount += 4;
+                if (avg < 0.3f && sleepCount < 200) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
+                    sleepCount += 2;
                     if(!blinkCheck.get()) {
                         blinkCheck.set(true);
-                        threadTime.recordCount();
+                        blinkCountThread.recordCount();
                     }
                 }
-                else if (avg < 0.5f && sleepCount <= 100) {
-                    sleepCount += 2;
+                else if (avg < 0.6f && sleepCount < 200) { //눈 0.6 미만 sleepCount 증가
+                    sleepCount += 1;
                 }
-                else if (sleepCount >= 0){
-                    sleepCount -= 5;
+                else if (avg >= 0.7f) { // 눈 0.7 이상 눈 뜸 확인, 깜빡임 증가, 감은 시간 평균, sleepCount 초기화
                     blinkCheck.set(false);
+                    count += 1;
+                    closeTimeAvg = closeTimeAvg + (float)((float)(sleepCount-closeTimeAvg)/(count+1));
+                    sleepCount = 0;
                 }
-                else {
-                    blinkCheck.set(false);
+                if (count > 200) {
+                    count = 0;
+                    closeTimeAvg = 1;
                 }
-
 
                 try {
-                    sleep(50);
+                    sleep(50); //0.05sec
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -339,13 +339,31 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
     private void sleepAlarm() {
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
-        //....
+        int timeCount = blinkCountThread.getBlinkRunCount();
+        if(sleepCount > 150){
+            //알람 3단계
+            txtAlarmLevel.setText(getString(R.string.level_3));
+        }
+        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
+            //알람 2단계
+            txtAlarmLevel.setText(getString(R.string.level_2));
+            playMedia.stopMusic();
+        }
+        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || sleepCount > 50) {
+            //알람 1단계
+            txtAlarmLevel.setText(getString(R.string.level_1));
+            playMedia.playMusic();
+        }
+        else {
+            txtAlarmLevel.setText(getString(R.string.standby));
+            playMedia.stopMusic();
+        }
     }
 
     private Bitmap cropFaceResize(Bitmap fullImage, Rect boundingBox) {
         int width = fullImage.getWidth();
         int height = fullImage.getHeight();
-        
+
         int left = boundingBox.left;
         int top = boundingBox.top;
         int right = boundingBox.right;
@@ -409,7 +427,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         return input;
     }
 
-//    private Interpreter getInterpreter(String path) {
+    //    private Interpreter getInterpreter(String path) {
 //        try {
 //            return new Interpreter(loadModelFile(this, path));
 //        } catch (Exception e) {
@@ -453,7 +471,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         super.onDestroy();
         cameraExecutor.shutdown();
         faceDetector.close();
-        threadTime.stopThread();
+        blinkCountThread.stopThread();
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
