@@ -113,6 +113,10 @@ public class OndeviceActivity extends AppCompatActivity {
         playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
         playVibrate = new PlayVibrate(this);
+
+//        playSong = new PlaySong(this);
+        playMedia = new PlayMedia(this);
+
         try {
             interpreter = new Interpreter(loadModelFile(model_4));
         } catch (IOException e) {
