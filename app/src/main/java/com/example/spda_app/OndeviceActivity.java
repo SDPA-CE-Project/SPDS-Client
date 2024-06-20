@@ -95,12 +95,10 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private ObjectDetector objectDetector;
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
-<<<<<<< HEAD
     private FirebaseAuth mAuth;
-    BackgroundTreadTime threadTime = new BackgroundTreadTime();
-=======
+
+    //BackgroundTreadTime threadTime = new BackgroundTreadTime();
     BlinkCountThread blinkCountThread = new BlinkCountThread();
->>>>>>> e1905fb357903e7599e177c2528f899cd5e9903c
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
     PlayAlarmThread alarmThread = new PlayAlarmThread(this);
     @Override

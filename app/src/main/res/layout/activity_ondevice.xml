@@ -14,7 +14,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent">
 
     </androidx.camera.view.PreviewView>
 
@@ -146,12 +146,14 @@
 
     <Button
         android:id="@+id/btnLogout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="407dp"
+        android:layout_height="38dp"
+        android:layout_marginBottom="50dp"
+        android:backgroundTint="@color/sky"
         android:text="Logout"
-        app:layout_constraintEnd_toEndOf="@+id/txtBlinkAvg"
-        app:layout_constraintStart_toStartOf="@+id/txtBlinkAvg"
-        app:layout_constraintTop_toBottomOf="@+id/txtBlinkAvg" />
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
