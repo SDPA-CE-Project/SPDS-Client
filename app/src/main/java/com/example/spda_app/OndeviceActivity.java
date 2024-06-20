@@ -3,6 +3,7 @@ package com.example.spda_app;
 import static org.tensorflow.lite.DataType.FLOAT32;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -40,6 +41,10 @@ import com.google.mlkit.vision.face.FaceDetectorOptions;
 import com.google.mlkit.vision.objects.ObjectDetector;
 import com.google.mlkit.vision.objects.custom.CustomObjectDetectorOptions;
 
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -73,11 +78,12 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
-public class OndeviceActivity extends AppCompatActivity {
+public class OndeviceActivity extends AppCompatActivity implements View.OnClickListener{
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private ImageView imgView;
     private ExecutorService cameraExecutor;
+    private Button btnLogout;
     private FaceDetector faceDetector;
     private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel, txtNoseMouthRatio;
     private Button toggleButton;
@@ -120,6 +126,8 @@ public class OndeviceActivity extends AppCompatActivity {
     private ObjectDetector objectDetector;
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
+    private FirebaseAuth mAuth;
+
     BlinkCountThread blinkCountThread = new BlinkCountThread();
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
     PlayAlarmThread alarmThread = new PlayAlarmThread(this);
@@ -272,6 +280,7 @@ public class OndeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
+        btnLogout = findViewById(R.id.btnLogout);
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
         graphicOverlay = findViewById(R.id.vw_overlay);
@@ -303,6 +312,9 @@ public class OndeviceActivity extends AppCompatActivity {
         ChartInit();
 
 
+
+        // Logout 전용 firebase 연동
+        mAuth = FirebaseAuth.getInstance();
 
         try {
             interpreter = new Interpreter(loadModelFile(model_4));
@@ -363,7 +375,27 @@ public class OndeviceActivity extends AppCompatActivity {
         });
 
         toggleDebugingTextVisiblity();
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClick(view);
+            }
+        });
 
+    }
+    public void onClick(View view){
+        mAuth.signOut();
+        if (mAuth.getCurrentUser() == null) {
+            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "User Logout: No user is logged in.");
+            Intent intent = new Intent(OndeviceActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish(); // Optional: Close the current activity or redirect to a login screen
+        }
+        else {
+            Toast.makeText(this, "Logout failed", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "User Logout: " + mAuth.getCurrentUser().toString());
+        }
     }
 
     private void startDetect() {

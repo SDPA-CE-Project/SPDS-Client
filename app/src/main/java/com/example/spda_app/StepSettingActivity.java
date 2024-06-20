@@ -88,7 +88,7 @@ public class StepSettingActivity extends AppCompatActivity {
                         && !selectedItem2.equals(selectedItem3) && !selectedItem2.equals(selectedItem4)
                         && !selectedItem3.equals(selectedItem4)) {
                     // 모두 다를 경우 다음 화면으로 이동하는 Intent 생성
-                    Intent intent = new Intent(StepSettingActivity.this, OndeviceActivity.class);
+                    Intent intent = new Intent(StepSettingActivity.this, LoginActivity.class);
                     // 선택된 항목들을 다음 화면으로 전달
                     intent.putExtra("selectedItem1", selectedItem1);
                     intent.putExtra("selectedItem2", selectedItem2);

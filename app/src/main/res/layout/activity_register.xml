@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/sdpsLogo"
+        android:id="@+id/sdpsLogoRegi"
         android:layout_width="75dp"
         android:layout_height="69dp"
         android:layout_marginTop="84dp"
@@ -16,23 +16,11 @@
         app:srcCompat="@drawable/baseline_directions_car_24" />
 
     <TextView
-        android:id="@+id/signInAppForm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="192dp"
-        android:text="SDPSapp"
-        android:textAlignment="center"
-        android:textSize="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/loginForm"
+        android:id="@+id/registerForm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="152dp"
-        android:text="Signin"
+        android:text="Register"
         android:textAlignment="center"
         android:textSize="30dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,27 +30,25 @@
 
     </TextView>
 
-    <EditText
-        android:id="@+id/edtPasswd"
+    <TextView
+        android:id="@+id/registerAppForm"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_marginTop="36dp"
-        android:ems="18"
-        android:hint="PASSWORD"
-        android:inputType="textPassword"
-        android:textSize="16sp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="192dp"
+        android:text="SDPSapp User"
+        android:textAlignment="center"
+        android:textSize="30dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtMail" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/edtMail"
+        android:id="@+id/makeEmail"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_marginTop="292dp"
         android:ems="18"
-        android:hint="E-MAIL"
+        android:hint="ADD a your E-MAIL"
         android:inputType="textEmailAddress"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,47 +56,65 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <Button
-        android:id="@+id/btnSign"
+        android:id="@+id/btnChkMail"
+        android:layout_width="117dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="344dp"
+        android:backgroundTint="#AEDFF7"
+        android:text="Check Email"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.884"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </Button>
+
+    <EditText
+        android:id="@+id/makePasswd"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="400dp"
+        android:ems="18"
+        android:hint="ADD a your Password"
+        android:inputType="textPassword"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/makePasswdAgain"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="480dp"
+        android:ems="18"
+        android:hint="ADD a your Password Again"
+        android:inputType="textPassword"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+        android:id="@+id/btnRegister"
         android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="68dp"
-        android:backgroundTint="#AEDFF7"
-        android:text="Login"
-        android:textSize="20sp"
+        android:background="@drawable/btn_change"
+        android:text="Register"
         android:textColor="@color/black"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtPasswd" />
-
-    <TextView
-        android:id="@+id/registerQuestion"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="32dp"
-        android:text="If you are not a SDPS user, Click to move on to the Register"
-        android:textAlignment="center"
-        android:textColor="#000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSign"
-        app:layout_constraintVertical_bias="0.15" />
-
-    <CheckBox
-        android:id="@+id/chkMailBox"
-        android:layout_width="149dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="20dp"
-        android:text="Remeber E-mail"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.145"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtPasswd"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/makePasswdAgain" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -188,8 +188,14 @@
             android:layout_marginBottom="32dp" />
     </RelativeLayout>
 
-
-
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        app:layout_constraintEnd_toEndOf="@+id/txtBlinkAvg"
+        app:layout_constraintStart_toStartOf="@+id/txtBlinkAvg"
+        app:layout_constraintTop_toBottomOf="@+id/txtBlinkAvg" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
