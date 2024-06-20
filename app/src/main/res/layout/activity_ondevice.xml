@@ -156,8 +156,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtDrozeWarn" />
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
@@ -180,22 +179,22 @@
 
         <Button
             android:id="@+id/debugingToggle"
-            android:text="Toggle Visibility"
             android:layout_width="150dp"
             android:layout_height="50dp"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginBottom="32dp" />
-    </RelativeLayout>
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
+            android:text="Toggle Visibility" />
 
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Logout"
-        app:layout_constraintEnd_toEndOf="@+id/txtBlinkAvg"
-        app:layout_constraintStart_toStartOf="@+id/txtBlinkAvg"
-        app:layout_constraintTop_toBottomOf="@+id/txtBlinkAvg" />
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/debugingToggle"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="5dp"
+            android:text="Logout" />
+    </RelativeLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
