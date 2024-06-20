@@ -29,6 +29,9 @@ import com.example.spda_app.face_detect.LandmarkData;
 import com.example.spda_app.face_detect.Metadata;
 
 import com.example.spda_app.threads.PlayAlarmThread;
+import com.github.mikephil.charting.charts.CombinedChart;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.data.CombinedData;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -43,14 +46,18 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,13 +67,27 @@ import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+
 public class OndeviceActivity extends AppCompatActivity {
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel, txtNoseMouthRatio;
+    private Button toggleButton;
+    private LineChart lineChart, totalChart;
+    private LineData lineData, totalData;
+    private ArrayList<Entry> eyesChartDataList, nodChartDataList, totalChartDataList;
+    private LineDataSet eyesLineDataSet, nodLineDataSet,totalChartDataSet;
+
+
+
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
     private static final String model_1 = "FL16_default.tflite";
@@ -74,7 +95,16 @@ public class OndeviceActivity extends AppCompatActivity {
     private static final String model_3 = "upgraded_model_quantizated_dynamic.tflite";
     private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
     private Interpreter interpreter;
+
+    private boolean debugTextVisible = true;
+    private double NMRatio = 0;
+    private int lowerHead = 0;
+
     private int sleepCount = 0;
+
+    private float eyeMultiplier = 1.0f;
+    private float angleMultiplier = 1.0f;
+    private int totalSleepCount;
     private float closeTimeAvg = 0;
     private float blinkAvg = 0;
     private PlaySong playSong;
@@ -85,6 +115,7 @@ public class OndeviceActivity extends AppCompatActivity {
     };
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
 
+    private final boolean returnBiggest = false;
     private CustomObjectDetectorOptions customObjectDetectorOptions;
     private ObjectDetector objectDetector;
     private int blinkCountPer10s = 0;
@@ -92,6 +123,150 @@ public class OndeviceActivity extends AppCompatActivity {
     BlinkCountThread blinkCountThread = new BlinkCountThread();
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
     PlayAlarmThread alarmThread = new PlayAlarmThread(this);
+
+
+
+    private void ChartInit()
+    {
+        lineChart.getAxisLeft().setAxisMinimum(0f);
+        lineChart.getAxisLeft().setAxisMaximum(1.8f);
+        LimitLine limitLine = new LimitLine(0.3f, "Blink Threshold");
+        limitLine.setLineWidth(2f);
+        limitLine.setLineColor(android.graphics.Color.RED);
+        limitLine.enableDashedLine(10f, 10f, 0f);
+        lineChart.getAxisLeft().addLimitLine(limitLine);
+
+        limitLine = new LimitLine(1.3f, "Nod Threshold");
+        limitLine.setLineWidth(2f);
+        limitLine.setLineColor(android.graphics.Color.BLUE);
+        limitLine.enableDashedLine(10f, 10f, 0f);
+        lineChart.getAxisLeft().addLimitLine(limitLine);
+        lineChart.getAxisRight().setEnabled(false);
+        totalChart.getAxisRight().setEnabled(false);
+        totalChart.getAxisLeft().setAxisMaximum(0f);
+        totalChart.getAxisLeft().setAxisMaximum(200);
+
+        limitLine = new LimitLine(50f, "level 1");
+        limitLine.setLineColor(Color.YELLOW);
+        limitLine.enableDashedLine(10f, 10f, 0f);
+        totalChart.getAxisLeft().addLimitLine(limitLine);
+        limitLine = new LimitLine(100f, "level 2");
+        limitLine.setLineColor(Color.rgb(255, 165, 0));//Orange color
+        limitLine.enableDashedLine(10f, 10f, 0f);
+        totalChart.getAxisLeft().addLimitLine(limitLine);
+        limitLine = new LimitLine(150f, "level 3");
+        limitLine.setLineColor(Color.RED);
+        limitLine.enableDashedLine(10f, 10f, 0f);
+        totalChart.getAxisLeft().addLimitLine(limitLine);
+    }
+
+
+    private int GetTotalSleepCount()
+    {
+        if(returnBiggest)
+        {
+            return Math.max((int) (eyeMultiplier * sleepCount), (int) (lowerHead * angleMultiplier));
+        }
+        else
+        {
+            return (int)(eyeMultiplier * sleepCount)+(int)(lowerHead * angleMultiplier);
+        }
+
+    }
+
+
+    private  void updateChart(float newEyeValue, float newNodValue)
+    {
+       // Log.i(TAG, "updateChart: "+ newEyeValue + '/' + newNodValue);
+
+
+       if(eyesChartDataList.size() > 15)
+       {
+           eyesChartDataList.remove(0);
+       }
+
+        for (Entry e: eyesChartDataList) {
+            e.setX(eyesChartDataList.indexOf(e));
+        }
+        eyesChartDataList.add(new Entry(eyesChartDataList.size(),newEyeValue));
+
+        if(nodChartDataList.size() > 15)
+        {
+            nodChartDataList.remove(0);
+        }
+        for(Entry e: nodChartDataList)
+        {
+            e.setX(nodChartDataList.indexOf(e));
+        }
+        nodChartDataList.add(new Entry(nodChartDataList.size(),newNodValue));
+
+        eyesLineDataSet.notifyDataSetChanged();
+        nodLineDataSet.notifyDataSetChanged();
+
+        lineData.notifyDataChanged();
+        lineChart.notifyDataSetChanged();
+
+
+
+
+        lineChart.invalidate();
+
+
+
+
+
+
+        if(totalChartDataList.size() > 15)
+        {
+            totalChartDataList.remove(0);
+        }
+        for (Entry e: totalChartDataList) {
+            e.setX(totalChartDataList.indexOf(e));
+        }
+        totalChartDataList.add(new Entry(totalChartDataList.size(),GetTotalSleepCount()));
+
+        totalChartDataSet.notifyDataSetChanged();
+        totalData.notifyDataChanged();
+        totalChart.notifyDataSetChanged();
+        totalChart.invalidate();
+    }
+    private  void toggleDebugingTextVisiblity()
+    {
+        debugTextVisible = !debugTextVisible;
+
+
+        if(debugTextVisible)
+        {
+            imgView.setVisibility(View.VISIBLE);
+            txtLeftEAR.setVisibility(View.VISIBLE);
+            txtRightEAR.setVisibility(View.VISIBLE);
+            txtAvgEAR.setVisibility(View.VISIBLE);
+            txtMar.setVisibility(View.VISIBLE);
+            txtSleepCount.setVisibility(View.VISIBLE);
+            txtBlinkCount.setVisibility(View.VISIBLE);
+            txtBlinkAvg.setVisibility(View.VISIBLE);
+            txtCloseTimeAvg.setVisibility(View.VISIBLE);
+            txtAlarmLevel.setVisibility(View.VISIBLE);
+            txtNoseMouthRatio.setVisibility(View.VISIBLE);
+            graphicOverlay.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            imgView.setVisibility(View.GONE);
+            txtLeftEAR.setVisibility(View.GONE);
+            txtRightEAR.setVisibility(View.GONE);
+            txtAvgEAR.setVisibility(View.GONE);
+            txtMar.setVisibility(View.GONE);
+            txtSleepCount.setVisibility(View.GONE);
+            txtBlinkCount.setVisibility(View.GONE);
+            txtBlinkAvg.setVisibility(View.GONE);
+            txtCloseTimeAvg.setVisibility(View.GONE);
+            txtAlarmLevel.setVisibility(View.GONE);
+            txtNoseMouthRatio.setVisibility(View.GONE);
+            graphicOverlay.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,14 +283,26 @@ public class OndeviceActivity extends AppCompatActivity {
         txtBlinkCount = findViewById(R.id.txtBlinkCount);
         txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
+
+        txtNoseMouthRatio = findViewById(R.id.txtNMRatio);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
+        lineChart = findViewById(R.id.lineChart);
+        totalChart = findViewById(R.id.totallineChart);
         playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
         playVibrate = new PlayVibrate(this);
 
+
+        totalChartDataList = new ArrayList<Entry>();
+        eyesChartDataList = new ArrayList<Entry>();
+        nodChartDataList = new ArrayList<Entry>();
 //        playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
+        toggleButton = findViewById(R.id.debugingToggle);
+        ChartInit();
+
+
 
         try {
             interpreter = new Interpreter(loadModelFile(model_4));
@@ -137,6 +324,45 @@ public class OndeviceActivity extends AppCompatActivity {
             );
         }
         cameraExecutor = Executors.newSingleThreadExecutor();
+        lineData = new LineData();
+        //combinedData = new CombinedData();
+
+
+        eyesLineDataSet = new LineDataSet(eyesChartDataList, "eyes");
+        eyesLineDataSet.setColor(Color.RED);
+        eyesLineDataSet.setCircleColor(Color.RED);
+        nodLineDataSet = new LineDataSet(nodChartDataList, "nod");
+        lineData.addDataSet(eyesLineDataSet);
+        lineData.addDataSet(nodLineDataSet);
+
+
+        totalData = new LineData();
+        totalChartDataSet = new LineDataSet(totalChartDataList,"totalSleep");
+        totalChartDataSet.setColor(Color.GREEN);
+        totalChartDataSet.setCircleColor(Color.GREEN);
+        totalData.addDataSet(totalChartDataSet);
+
+        //combinedData.addDataSet(eyesLineDataSet);
+        //combinedData.addDataSet(nodLineDataSet);
+
+
+        //totalChart.setData( new LineDataSet(totalChartDataList,"total"));
+
+        lineChart.setData(lineData);
+        totalChart.setData(totalData);
+        totalChart.getDescription().setEnabled(false);
+        totalChart.getLegend().setForm(Legend.LegendForm.LINE);
+        lineChart.getDescription().setEnabled(false);
+        Legend legend = lineChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+
+        toggleButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toggleDebugingTextVisiblity();
+            }
+        });
+
+        toggleDebugingTextVisiblity();
 
     }
 
@@ -200,10 +426,12 @@ public class OndeviceActivity extends AppCompatActivity {
                         txtBlinkCount.setText(getString(R.string.blinkCount, blinkCount, blinkCountPer10s));
                         txtBlinkAvg.setText(getString(R.string.blinkAvg, blinkAvg));
                         txtCloseTimeAvg.setText(getString(R.string.closeTime, closeTimeAvg));
-
+                        NMRatio = landmark.noseMouthDistanceRatio();
+                        txtNoseMouthRatio.setText(String.format("%.4f", NMRatio));
                         detectDrowzThread.setAvg(avg);
                         imgView.setImageBitmap(croppedFace);
-                        imgView.setVisibility(View.VISIBLE);
+                        //imgView.setVisibility(View.VISIBLE);
+                        updateChart(avg,(float)NMRatio);
                     }
                     sleepAlarm();
                 }));
@@ -272,9 +500,32 @@ public class OndeviceActivity extends AppCompatActivity {
         public void setAvg(float avg) {
             this.avg = avg;
         }
+
+        private void headAngleDetect()
+        {
+            if(NMRatio > 1.3f)  //고개 내림 감지, 해당 임계 값은 모델 개선 테스트 후 수정 되어야 하거나 사용자 마다 다르게 해야할 필요성이 있음
+            {
+                lowerHead += 1;
+            }
+            else {
+                lowerHead -= 1;
+                if(lowerHead > 50)  //위험 단계 일때 고개가 정면을 볼 경우 더 빨리 경고에서 빠져 나오도록 해줌
+                    lowerHead -= 1;
+                if(lowerHead < 0)
+                    lowerHead = 0;
+            }
+        }
+
         @Override
         public void run() {
             while (running) {
+
+                //updateChart();
+                headAngleDetect();
+
+
+
+
                 if (avg < 0.3f && sleepCount < 200) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
                     sleepCount += 2;
                     if(!blinkCheck.get()) {
@@ -308,20 +559,20 @@ public class OndeviceActivity extends AppCompatActivity {
     private void sleepAlarm() {
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         int timeCount = blinkCountThread.getBlinkRunCount();
-        if(sleepCount > 150){
+        if(GetTotalSleepCount() > 150){
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
             playSong.stopSound();
             playVibrate.playVibrate();
         }
-        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
+        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 100) {
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
             playSong.playMusic();
             playMedia.stopMusic();
             playVibrate.stopVibration();
         }
-        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || sleepCount > 50) {
+        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 50) {
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
             playSong.stopSound();
@@ -436,6 +687,7 @@ public class OndeviceActivity extends AppCompatActivity {
         }
         return true;
     }
+
     @Override
     protected void onPause() {
         super.onPause();
