@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.app.Dialog;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -29,7 +31,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseAuth mAuth;
     private Button btnSign;
     private EditText edtEmail, edtPasswd;
-    private TextView registerQuestion;
+    private TextView registerQuestion, resetQuestion;
     private CheckBox chkMailBox;
     private SharedPreferences appData;
     // 사용자 정보 저장
@@ -44,15 +46,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         edtPasswd = findViewById(R.id.edtPasswd);
         chkMailBox = findViewById(R.id.chkMailBox);
         registerQuestion = findViewById(R.id.registerQuestion);
+        resetQuestion = findViewById(R.id.resetQuestion);
+
+
         btnSign.setOnClickListener(this);
         registerQuestion.setOnTouchListener(this);
         registerQuestion.setOnClickListener(this);
+        resetQuestion.setOnTouchListener(this);
+        resetQuestion.setOnClickListener(this);
+
 
 
         appData = getSharedPreferences("appData", MODE_PRIVATE);
         // UI 설정 정보 불러오기
         loadInfo();
-
     }
 
     @Override
@@ -64,11 +71,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View view) {
         int id = view.getId();
-
         if (id == R.id.btnSign) {
-            getLogin();
+            String email = edtEmail.getText().toString().trim();
+            String passwd = edtPasswd.getText().toString().trim();
+            if (!email.isEmpty() && !passwd.isEmpty()) {
+                getLogin();
+            }
+            else {
+                Toast.makeText(this,"Enter your Email and Password", Toast.LENGTH_SHORT).show();
+                Log.d(TAG,"Empty Email or Password");
+            }
         } else if (id == R.id.registerQuestion) {
             gotoRegi();
+        }
+        else if (id == R.id.resetQuestion) {
+            showResetDialog();
         }
     }
 
@@ -83,7 +100,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     gotoRegi();
                     break;
                 case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
                     registerQuestion.setTextColor(Color.BLACK);
+                    break;
+            }
+            return true;
+        }
+
+        else if (id == R.id.resetQuestion) {
+            switch(event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    resetQuestion.setTextColor(Color.parseColor("#8B2991"));
+                    showResetDialog();
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    resetQuestion.setTextColor(Color.BLACK);
                     break;
             }
             return true;
@@ -113,6 +145,80 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
     */
 
+    private void showResetDialog() {
+        Dialog dialog = new Dialog(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.reset_layout, null);
+
+        // dialog title
+        dialog.setTitle("reset password");
+
+        // dialog layout
+        dialog.setContentView(dialogView);
+
+        // dialog component
+        EditText emailInput = dialogView.findViewById(R.id.emailInput);
+        Button findPasswdBtn = dialogView.findViewById(R.id.findPasswdBtn);
+        findPasswdBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = emailInput.getText().toString().trim();
+                if (email.isEmpty()) {
+                    emailInput.setError("Enter the Email");
+                } else {
+                    resetPasswd(email, dialog);
+
+                }
+            }
+        });
+
+        // display Dialog
+        dialog.show();
+    }
+
+    private void resetPasswd(String email, Dialog dialog) {
+        mAuth = FirebaseAuth.getInstance();
+        // 해당 이메일로 재설정 이메일 전송
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> resetTask) {
+                        if (resetTask.isSuccessful()) {
+                            dialog.dismiss();
+                            showResetDialog2();
+                            Log.d(TAG, "Email Send Success : " + email);
+                        } else {
+                            Toast.makeText(LoginActivity.this, "이메일 전송에 실패했습니다. 가입하신 이메일 주소를 확인해주세요.", Toast.LENGTH_SHORT).show();
+                            Log.w(TAG, "Email Send failure : " + email);
+
+                        }
+                    }
+                });
+    }
+    private void showResetDialog2() {
+        Dialog dialog = new Dialog(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.reset_layout2, null);
+
+        // dialog title
+        dialog.setTitle("reset success");
+
+        // dialog layout
+        dialog.setContentView(dialogView);
+
+        Button okBtn = dialogView.findViewById(R.id.okBtn);
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        // display Dialog
+        dialog.show();
+    }
+
+
+    // 비밀번호 재설정 기능
+
     private void reload() {
         Toast.makeText(LoginActivity.this, "Already SignIn",
                 Toast.LENGTH_SHORT).show();
@@ -138,19 +244,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-
                 if (task.isSuccessful()) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success");
                     Toast.makeText(LoginActivity.this, "SignIn successes.",
                             Toast.LENGTH_SHORT).show();
                     FirebaseUser user = mAuth.getCurrentUser();
+                    edtEmail.setText("");
+                    edtPasswd.setText("");
                     Intent intent = new Intent(LoginActivity.this, OndeviceActivity.class);
                     startActivity(intent);
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.getException());
-                    Toast.makeText(LoginActivity.this, "SignIn failed." + task.getException(),
+                    Toast.makeText(LoginActivity.this, "SignIn failed. : " + task.getException(),
                             Toast.LENGTH_SHORT).show();
                 }
 
