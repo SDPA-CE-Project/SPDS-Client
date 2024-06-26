@@ -146,7 +146,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         limitLine.enableDashedLine(10f, 10f, 0f);
         lineChart.getAxisLeft().addLimitLine(limitLine);
 
-        limitLine = new LimitLine(1.3f, "Nod Threshold");
+        limitLine = new LimitLine(1.2f, "Nod Threshold");
         limitLine.setLineWidth(2f);
         limitLine.setLineColor(android.graphics.Color.BLUE);
         limitLine.enableDashedLine(10f, 10f, 0f);
@@ -154,17 +154,17 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         lineChart.getAxisRight().setEnabled(false);
         totalChart.getAxisRight().setEnabled(false);
         totalChart.getAxisLeft().setAxisMaximum(0f);
-        totalChart.getAxisLeft().setAxisMaximum(200);
+        totalChart.getAxisLeft().setAxisMaximum(500);
 
-        limitLine = new LimitLine(50f, "level 1");
+        limitLine = new LimitLine(150f, "level 1");
         limitLine.setLineColor(Color.YELLOW);
         limitLine.enableDashedLine(10f, 10f, 0f);
         totalChart.getAxisLeft().addLimitLine(limitLine);
-        limitLine = new LimitLine(100f, "level 2");
+        limitLine = new LimitLine(300f, "level 2");
         limitLine.setLineColor(Color.rgb(255, 165, 0));//Orange color
         limitLine.enableDashedLine(10f, 10f, 0f);
         totalChart.getAxisLeft().addLimitLine(limitLine);
-        limitLine = new LimitLine(150f, "level 3");
+        limitLine = new LimitLine(450f, "level 3");
         limitLine.setLineColor(Color.RED);
         limitLine.enableDashedLine(10f, 10f, 0f);
         totalChart.getAxisLeft().addLimitLine(limitLine);
@@ -537,7 +537,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         private void headAngleDetect()
         {
-            if(NMRatio > 1.3f)  //고개 내림 감지, 해당 임계 값은 모델 개선 테스트 후 수정 되어야 하거나 사용자 마다 다르게 해야할 필요성이 있음
+            if(NMRatio > 1.2f)  //고개 내림 감지, 해당 임계 값은 모델 개선 테스트 후 수정 되어야 하거나 사용자 마다 다르게 해야할 필요성이 있음
             {
                 lowerHead += 1;
             }
@@ -560,14 +560,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
 
 
-                if (avg < 0.3f && sleepCount < 200) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
+                if (avg < 0.3f && sleepCount < 500) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
                     sleepCount += 2;
                     if(!blinkCheck.get()) {
                         blinkCheck.set(true);
                         blinkCountThread.recordCount();
                     }
                 }
-                else if (avg < 0.6f && sleepCount < 200) { //눈 0.6 미만 sleepCount 증가
+                else if (avg < 0.6f && sleepCount < 500) { //눈 0.6 미만 sleepCount 증가
                     sleepCount += 1;
                 }
                 else if (avg >= 0.7f) { // 눈 0.7 이상 눈 뜸 확인, 깜빡임 증가, 감은 시간 평균, sleepCount 초기화
@@ -593,20 +593,20 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private void sleepAlarm() {
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         int timeCount = blinkCountThread.getBlinkRunCount();
-        if(GetTotalSleepCount() > 150){
+        if(GetTotalSleepCount() > 450){
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
             playSong.stopSound();
             playVibrate.playVibrate();
         }
-        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 100) {
+        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 300) {
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
             playSong.playMusic();
             playMedia.stopMusic();
             playVibrate.stopVibration();
         }
-        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 50) {
+        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 150) {
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
             playSong.stopSound();
