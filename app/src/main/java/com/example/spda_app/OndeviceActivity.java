@@ -669,24 +669,38 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         int faceWidth = right - left;
         int faceHeight = bottom - top;
 
-        float scaleFactor = 1.5f;
+        float scaleFactor = 1.4f;
+        float offsetX = faceWidth * 0;
+        float offsetY = faceHeight * 0.13f;
 
-        int expandedWidth = (int) (faceWidth * scaleFactor);
-        int expandedHeight = (int) (faceHeight * scaleFactor);
+        //int expandedWidth = (int) (faceWidth * scaleFactor);
+        //int expandedHeight = (int) (faceHeight * scaleFactor);
 
-        int faceCenterX = (left + right) / 2;
-        int faceCenterY = (top + bottom) / 2;
+        int faceCenterX = (left + right) / 2 + (int)offsetX;
+        int faceCenterY = (top + bottom) / 2 + (int)offsetY;
 
-        int expandedLeft = Math.max(faceCenterX - expandedWidth / 2, 0);
-        int expandedTop = Math.max(faceCenterY - expandedHeight / 2, 0);
-        int expandedRight = Math.min(faceCenterX + expandedWidth / 2, width);
-        int expandedBottom = Math.min(faceCenterY + expandedHeight / 2, height);
+        int margin = (int)((Math.max(faceWidth, faceHeight) * scaleFactor) / 2);
 
+//        int expandedLeft = Math.max(faceCenterX - (expandedWidth / 2), 0);
+//        int expandedTop = Math.max(faceCenterY - (expandedHeight / 2), 0);
+//        int expandedRight = Math.min(faceCenterX + (expandedWidth / 2), width);
+//        int expandedBottom = Math.min(faceCenterY + (expandedHeight / 2), height);
+
+//        Bitmap faceBitmap = Bitmap.createBitmap(fullImage,
+//                expandedLeft,
+//                expandedTop,
+//                expandedRight - expandedLeft,
+//                expandedBottom - expandedTop);
+        int expendedLeft = faceCenterX - margin;
+        expendedLeft = Math.max(expendedLeft, 0);
+        int expendedRight = faceCenterX + margin;
+        expendedRight = Math.min(expendedRight, width);
+        int expendedTop = faceCenterY - margin;
+        expendedTop = Math.max(expendedTop, 0);
+        int expendedBottom = faceCenterY + margin;
+        expendedBottom = Math.min(expendedBottom, height);
         Bitmap faceBitmap = Bitmap.createBitmap(fullImage,
-                expandedLeft,
-                expandedTop,
-                expandedRight - expandedLeft,
-                expandedBottom - expandedTop);
+                expendedLeft, expendedTop,expendedRight - expendedLeft,expendedBottom - expendedTop);
 
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(faceBitmap, 256, 256, true);
 

@@ -64,5 +64,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        binding.btnSkipDemo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, OndeviceActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }
