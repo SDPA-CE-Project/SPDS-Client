@@ -168,6 +168,41 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         limitLine.setLineColor(Color.RED);
         limitLine.enableDashedLine(10f, 10f, 0f);
         totalChart.getAxisLeft().addLimitLine(limitLine);
+
+
+
+        lineData = new LineData();
+        //combinedData = new CombinedData();
+
+
+        eyesLineDataSet = new LineDataSet(eyesChartDataList, "eyes");
+        eyesLineDataSet.setColor(Color.RED);
+        eyesLineDataSet.setCircleColor(Color.RED);
+        nodLineDataSet = new LineDataSet(nodChartDataList, "nod");
+        lineData.addDataSet(eyesLineDataSet);
+        lineData.addDataSet(nodLineDataSet);
+
+
+        totalData = new LineData();
+        totalChartDataSet = new LineDataSet(totalChartDataList,"totalSleep");
+        totalChartDataSet.setColor(Color.GREEN);
+        totalChartDataSet.setCircleColor(Color.GREEN);
+        totalData.addDataSet(totalChartDataSet);
+
+        //combinedData.addDataSet(eyesLineDataSet);
+        //combinedData.addDataSet(nodLineDataSet);
+
+
+        //totalChart.setData( new LineDataSet(totalChartDataList,"total"));
+
+        lineChart.setData(lineData);
+        totalChart.setData(totalData);
+        totalChart.getDescription().setEnabled(false);
+        totalChart.getLegend().setForm(Legend.LegendForm.LINE);
+        lineChart.getDescription().setEnabled(false);
+        Legend legend = lineChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+
     }
 
 
@@ -338,37 +373,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             );
         }
         cameraExecutor = Executors.newSingleThreadExecutor();
-        lineData = new LineData();
-        //combinedData = new CombinedData();
 
-
-        eyesLineDataSet = new LineDataSet(eyesChartDataList, "eyes");
-        eyesLineDataSet.setColor(Color.RED);
-        eyesLineDataSet.setCircleColor(Color.RED);
-        nodLineDataSet = new LineDataSet(nodChartDataList, "nod");
-        lineData.addDataSet(eyesLineDataSet);
-        lineData.addDataSet(nodLineDataSet);
-
-
-        totalData = new LineData();
-        totalChartDataSet = new LineDataSet(totalChartDataList,"totalSleep");
-        totalChartDataSet.setColor(Color.GREEN);
-        totalChartDataSet.setCircleColor(Color.GREEN);
-        totalData.addDataSet(totalChartDataSet);
-
-        //combinedData.addDataSet(eyesLineDataSet);
-        //combinedData.addDataSet(nodLineDataSet);
-
-
-        //totalChart.setData( new LineDataSet(totalChartDataList,"total"));
-
-        lineChart.setData(lineData);
-        totalChart.setData(totalData);
-        totalChart.getDescription().setEnabled(false);
-        totalChart.getLegend().setForm(Legend.LegendForm.LINE);
-        lineChart.getDescription().setEnabled(false);
-        Legend legend = lineChart.getLegend();
-        legend.setForm(Legend.LegendForm.LINE);
 
         toggleButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
