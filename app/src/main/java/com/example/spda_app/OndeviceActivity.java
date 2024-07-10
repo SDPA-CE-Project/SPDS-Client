@@ -49,6 +49,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private static final String model_2 = "model.tflite";
     private static final String model_3 = "upgraded_model_quantizated_dynamic.tflite";
     private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
+    private static final String model_5 = "FL2_gen2_MNv2_fp16.tflite";
     private Interpreter interpreter;
 
     private boolean debugTextVisible = true;
@@ -354,7 +356,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         mAuth = FirebaseAuth.getInstance();
 
         try {
-            interpreter = new Interpreter(loadModelFile(model_4));
+            interpreter = new Interpreter(loadModelFile(model_5));
         } catch (IOException e) {
             e.getMessage();
             throw new RuntimeException(e);
@@ -429,11 +431,17 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
 
                         Bitmap croppedFace = cropFaceResize(fullImage, faceResult.get(0).getBoundingBox());
+                        float[] normalizedFace = normalize(croppedFace);
+
                         TensorImage inputImageBuffer = new TensorImage(FLOAT32);
-                        inputImageBuffer.load(croppedFace);
+                        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(normalizedFace.length * 4);
+                        byteBuffer.order(ByteOrder.nativeOrder());
+                        FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
+                        floatBuffer.put(normalizedFace);
+                        //inputImageBuffer.load(floatBuffer);
 
                         TensorBuffer outputBuffer2 = TensorBuffer.createFixedSize(new int[]{1, 136}, FLOAT32);
-                        interpreter.run(inputImageBuffer.getBuffer(), outputBuffer2.getBuffer());
+                        interpreter.run(floatBuffer, outputBuffer2.getBuffer());
 
                         float[] flatArray = (outputBuffer2.getFloatArray());
 
@@ -482,6 +490,29 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         previewView.setController(cameraController);
 
+    }
+    public static float[] normalize(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        float[] normalizedPixels = new float[width * height * 3];
+        float[] imgMean = {0.485f, 0.456f, 0.406f};
+        float[] imgStd = {0.229f, 0.224f, 0.225f};
+
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        for (int i = 0; i < pixels.length; i++) {
+            int pixel = pixels[i];
+            float r = Color.red(pixel) / 255.0f;
+            float g = Color.green(pixel) / 255.0f;
+            float b = Color.blue(pixel) / 255.0f;
+
+            normalizedPixels[i * 3] = (r - imgMean[0]) / imgStd[0];
+            normalizedPixels[i * 3 + 1] = (g - imgMean[1]) / imgStd[1];
+            normalizedPixels[i * 3 + 2] = (b - imgMean[2]) / imgStd[2];
+        }
+
+        return normalizedPixels;
     }
 
     private class BlinkCountThread extends Thread {
@@ -643,24 +674,38 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         int faceWidth = right - left;
         int faceHeight = bottom - top;
 
-        float scaleFactor = 1.5f;
+        float scaleFactor = 1.4f;
+        float offsetX = faceWidth * 0;
+        float offsetY = faceHeight * 0.13f;
 
-        int expandedWidth = (int) (faceWidth * scaleFactor);
-        int expandedHeight = (int) (faceHeight * scaleFactor);
+        //int expandedWidth = (int) (faceWidth * scaleFactor);
+        //int expandedHeight = (int) (faceHeight * scaleFactor);
 
-        int faceCenterX = (left + right) / 2;
-        int faceCenterY = (top + bottom) / 2;
+        int faceCenterX = (left + right) / 2 + (int)offsetX;
+        int faceCenterY = (top + bottom) / 2 + (int)offsetY;
 
-        int expandedLeft = Math.max(faceCenterX - expandedWidth / 2, 0);
-        int expandedTop = Math.max(faceCenterY - expandedHeight / 2, 0);
-        int expandedRight = Math.min(faceCenterX + expandedWidth / 2, width);
-        int expandedBottom = Math.min(faceCenterY + expandedHeight / 2, height);
+        int margin = (int)((Math.max(faceWidth, faceHeight) * scaleFactor) / 2);
 
+//        int expandedLeft = Math.max(faceCenterX - (expandedWidth / 2), 0);
+//        int expandedTop = Math.max(faceCenterY - (expandedHeight / 2), 0);
+//        int expandedRight = Math.min(faceCenterX + (expandedWidth / 2), width);
+//        int expandedBottom = Math.min(faceCenterY + (expandedHeight / 2), height);
+
+//        Bitmap faceBitmap = Bitmap.createBitmap(fullImage,
+//                expandedLeft,
+//                expandedTop,
+//                expandedRight - expandedLeft,
+//                expandedBottom - expandedTop);
+        int expendedLeft = faceCenterX - margin;
+        expendedLeft = Math.max(expendedLeft, 0);
+        int expendedRight = faceCenterX + margin;
+        expendedRight = Math.min(expendedRight, width);
+        int expendedTop = faceCenterY - margin;
+        expendedTop = Math.max(expendedTop, 0);
+        int expendedBottom = faceCenterY + margin;
+        expendedBottom = Math.min(expendedBottom, height);
         Bitmap faceBitmap = Bitmap.createBitmap(fullImage,
-                expandedLeft,
-                expandedTop,
-                expandedRight - expandedLeft,
-                expandedBottom - expandedTop);
+                expendedLeft, expendedTop,expendedRight - expendedLeft,expendedBottom - expendedTop);
 
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(faceBitmap, 256, 256, true);
 
