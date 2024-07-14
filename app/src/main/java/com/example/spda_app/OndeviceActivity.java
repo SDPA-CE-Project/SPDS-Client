@@ -86,7 +86,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private ExecutorService cameraExecutor;
     private Button btnLogout;
     private FaceDetector faceDetector;
-    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel, txtNoseMouthRatio;
+    private TextView txtLatency, txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel, txtNoseMouthRatio;
     private Button toggleButton;
     private LineChart lineChart, totalChart;
     private LineData lineData, totalData;
@@ -104,7 +104,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private static final String model_5 = "FL2_gen2_MNv2_fp16.tflite";
     private Interpreter interpreter;
 
-    private boolean debugTextVisible = true;
+    private int debugTextVisible = 0;
     private double NMRatio = 0;
     private int lowerHead = 0;
 
@@ -279,12 +279,13 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     }
     private  void toggleDebugingTextVisiblity()
     {
-        debugTextVisible = !debugTextVisible;
+        debugTextVisible = (debugTextVisible + 1)%3;
 
 
-        if(debugTextVisible)
+        if(debugTextVisible == 0)
         {
             imgView.setVisibility(View.VISIBLE);
+            txtLatency.setVisibility(View.VISIBLE);
             txtLeftEAR.setVisibility(View.VISIBLE);
             txtRightEAR.setVisibility(View.VISIBLE);
             txtAvgEAR.setVisibility(View.VISIBLE);
@@ -296,10 +297,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             txtAlarmLevel.setVisibility(View.VISIBLE);
             txtNoseMouthRatio.setVisibility(View.VISIBLE);
             graphicOverlay.setVisibility(View.VISIBLE);
+
+            totalChart.setVisibility(View.GONE);
+            lineChart.setVisibility(View.GONE);
         }
-        else
+        else if(debugTextVisible == 1)
         {
             imgView.setVisibility(View.GONE);
+            txtLatency.setVisibility(View.GONE);
             txtLeftEAR.setVisibility(View.GONE);
             txtRightEAR.setVisibility(View.GONE);
             txtAvgEAR.setVisibility(View.GONE);
@@ -311,6 +316,28 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             txtAlarmLevel.setVisibility(View.GONE);
             txtNoseMouthRatio.setVisibility(View.GONE);
             graphicOverlay.setVisibility(View.GONE);
+
+            totalChart.setVisibility(View.VISIBLE);
+            lineChart.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            imgView.setVisibility(View.GONE);
+            txtLatency.setVisibility(View.GONE);
+            txtLeftEAR.setVisibility(View.GONE);
+            txtRightEAR.setVisibility(View.GONE);
+            txtAvgEAR.setVisibility(View.GONE);
+            txtMar.setVisibility(View.GONE);
+            txtSleepCount.setVisibility(View.GONE);
+            txtBlinkCount.setVisibility(View.GONE);
+            txtBlinkAvg.setVisibility(View.GONE);
+            txtCloseTimeAvg.setVisibility(View.GONE);
+            txtAlarmLevel.setVisibility(View.GONE);
+            txtNoseMouthRatio.setVisibility(View.GONE);
+            graphicOverlay.setVisibility(View.GONE);
+
+            totalChart.setVisibility(View.GONE);
+            lineChart.setVisibility(View.GONE);
         }
     }
 
@@ -319,6 +346,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
+        txtLatency = findViewById(R.id.txtTimeCheck);
         btnLogout = findViewById(R.id.btnLogout);
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
