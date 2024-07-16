@@ -22,7 +22,7 @@ public class AlarmSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding1 = AlarmSettingBinding.inflate(getLayoutInflater());
         setContentView(binding1.getRoot());
-        permissionCheck();
+        //permissionCheck();
 
         // 노래 선택 레이아웃 클릭 이벤트
         binding1.songLinearLayout.setOnClickListener(new View.OnClickListener() {

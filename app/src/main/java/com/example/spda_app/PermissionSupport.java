@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -45,6 +46,7 @@ public class PermissionSupport {
             result = ContextCompat.checkSelfPermission(context, pm);
             if(result != PackageManager.PERMISSION_GRANTED){
                 permissionList.add(pm);
+                Log.d("TAG", "checkPermission");
             }
         }
 
@@ -63,6 +65,7 @@ public class PermissionSupport {
             for(int i =0; i < grantResults.length ; i ++){
                 // grantResults == 0 사용자가 허용한 것
                 // grantResults == -1 사용자가 거부한 것
+                Log.d("TAG", "permissionResult");
                 if(grantResults[i] == -1){
                     return false;
                 }
