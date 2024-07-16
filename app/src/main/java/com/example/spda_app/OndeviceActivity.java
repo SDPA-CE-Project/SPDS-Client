@@ -489,12 +489,12 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                         //previewView.getOverlay().add(drawLandmark);
 
                         graphicOverlay.add(new DrawLandmarkGraphic(graphicOverlay, landmark));
-//                        txtLeftEAR.setText(String.format("%.4f", landmark.earLeft()));
-//                        txtRightEAR.setText(String.format("%.4f", landmark.earRight()));
-//                        txtAvgEAR.setText(String.format("%.4f", landmark.earAvg()));
-                        txtLeftEAR.setText(String.format("%.4f", leftEye));
-                        txtRightEAR.setText(String.format("%.4f", rightEye));
-                        txtAvgEAR.setText(String.format("%.4f", avg));
+                        txtLeftEAR.setText(String.format("%.4f", landmark.earLeft()));
+                        txtRightEAR.setText(String.format("%.4f", landmark.earRight()));
+                        txtAvgEAR.setText(String.format("%.4f", landmark.earAvg()));
+//                        txtLeftEAR.setText(String.format("%.4f", leftEye));
+//                        txtRightEAR.setText(String.format("%.4f", rightEye));
+//                        txtAvgEAR.setText(String.format("%.4f", avg));
                         txtMar.setText(String.format("%.4f", landmark.marAvg()));
 
                         txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
