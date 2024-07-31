@@ -285,17 +285,17 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         if(debugTextVisible == 0)
         {
             imgView.setVisibility(View.VISIBLE);
-            //txtLatency.setVisibility(View.VISIBLE);
-            //txtLeftEAR.setVisibility(View.VISIBLE);
-            //txtRightEAR.setVisibility(View.VISIBLE);
-            //txtAvgEAR.setVisibility(View.VISIBLE);
-            //txtMar.setVisibility(View.VISIBLE);
-            //txtSleepCount.setVisibility(View.VISIBLE);
-            //txtBlinkCount.setVisibility(View.VISIBLE);
-            //txtBlinkAvg.setVisibility(View.VISIBLE);
-            //txtCloseTimeAvg.setVisibility(View.VISIBLE);
-            //txtAlarmLevel.setVisibility(View.VISIBLE);
-            //txtNoseMouthRatio.setVisibility(View.VISIBLE);
+            txtLatency.setVisibility(View.VISIBLE);
+            txtLeftEAR.setVisibility(View.VISIBLE);
+            txtRightEAR.setVisibility(View.VISIBLE);
+            txtAvgEAR.setVisibility(View.VISIBLE);
+            txtMar.setVisibility(View.VISIBLE);
+            txtSleepCount.setVisibility(View.VISIBLE);
+            txtBlinkCount.setVisibility(View.VISIBLE);
+            txtBlinkAvg.setVisibility(View.VISIBLE);
+            txtCloseTimeAvg.setVisibility(View.VISIBLE);
+            txtAlarmLevel.setVisibility(View.VISIBLE);
+            txtNoseMouthRatio.setVisibility(View.VISIBLE);
             graphicOverlay.setVisibility(View.VISIBLE);
 
             totalChart.setVisibility(View.GONE);
