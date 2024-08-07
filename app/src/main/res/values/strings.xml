@@ -35,4 +35,5 @@
     <string name="closeTime">Close: %1$f</string>
     <string name="closeAvg">CAvg: %1$f</string>
     <string name="ms">%1$d ms</string>
+    <string name="title_activity_face_detect_test">FaceDetectTestActivity</string>
 </resources>
