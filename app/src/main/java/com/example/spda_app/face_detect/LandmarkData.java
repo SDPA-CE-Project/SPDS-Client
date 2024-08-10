@@ -60,6 +60,21 @@ public class LandmarkData {
         double C = calculateEuclideanDistance(coordX[42], coordX[45], coordY[42], coordY[45]);
         return (A + B) / (2.0 * C);
     }
+    public double noseMouthDistanceRatio() {
+        int[] coordX = getMapCoordX();
+        int[] coordY = getMapCoordY();
+        double upnoseX, upnoseY, downnoseX, downnoseY, chinX, chinY, noseD, noseMouthD;
+        upnoseX = coordX[27];
+        upnoseY = coordY[27];
+        downnoseX = coordX[33];
+        downnoseY= coordY[33];
+        chinX = coordX[8];
+        chinY = coordY[8];
+        noseD = Math.sqrt(Math.pow(upnoseX-downnoseX,2) + Math.pow(upnoseY-downnoseY,2));
+        noseMouthD = Math.sqrt(Math.pow(downnoseX - chinX,2) + Math.pow(downnoseY-chinY,2));
+        return noseD/noseMouthD;
+
+    }
     public double marAvg() {
         int[] coordX = getMapCoordX();
         int[] coordY = getMapCoordY();

@@ -16,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" >
 
+
     </androidx.camera.view.PreviewView>
 
     <ImageView
@@ -142,5 +143,68 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="@+id/vw_Preview"
         app:layout_constraintTop_toBottomOf="@+id/txtCloseTimeAvg" />
+
+    <TextView
+        android:id="@+id/txtNMRatio"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDrozeWarn" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="32dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/totallineChart"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="32dp" />
+
+        <Button
+            android:id="@+id/debugingToggle"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
+            android:text="Toggle Visibility" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/debugingToggle"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="5dp"
+            android:text="Logout" />
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/txtTimeCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:text="@string/ms"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/vw_Preview"
+        app:layout_constraintTop_toBottomOf="@+id/imgview" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

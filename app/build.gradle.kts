@@ -50,11 +50,12 @@ android {
 
     viewBinding { enable = true }
     dataBinding { enable = true }
+    buildToolsVersion = "34.0.0"
 }
 
 dependencies {
     implementation ("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
@@ -84,4 +85,5 @@ dependencies {
     implementation ("com.google.inject:guice")
     implementation ("androidx.camera:camera-view:1.3.2")
     implementation ("androidx.camera:camera-extensions:1.3.2")
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

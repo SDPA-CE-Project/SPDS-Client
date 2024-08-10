@@ -20,7 +20,10 @@ public class AlarmbellSettingActivity extends AppCompatActivity {
     private ArrayList<String> List;
     private AlarmbellSettingBinding binding;
     private PlaySong playsong;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +39,10 @@ public class AlarmbellSettingActivity extends AppCompatActivity {
         List.add("bell 3");
 
         playsong = new PlaySong(this);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
         // 리스트뷰 설정 및 어댑터 설정...
         listView = binding.listView;
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_single_choice, List);
@@ -51,11 +57,19 @@ public class AlarmbellSettingActivity extends AppCompatActivity {
                 setSelectedIndex(position);
                 binding.number.setText(String.valueOf(getSelectedIndex()));
                 if (playsong.isPlaying()) {
+<<<<<<< HEAD
                     playsong.stopAlarm();
                     playsong = new PlaySong(AlarmbellSettingActivity.this);
                     playsong.playAlarm();
                 }
                 playsong.playAlarm();
+=======
+                    playsong.stopSound();
+                    playsong = new PlaySong(AlarmbellSettingActivity.this);
+                    playsong.playMusic();
+                }
+                playsong.playMusic();
+>>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
             }
         });
         Button btnConfirm = binding.confirm;
@@ -63,7 +77,11 @@ public class AlarmbellSettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 확인 버튼을 클릭했을 때 이전 화면으로 돌아가는 로직을 추가
+<<<<<<< HEAD
                 playsong.stopAlarm();
+=======
+                playsong.stopSound();
+>>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
                 finish();
             }
         });
