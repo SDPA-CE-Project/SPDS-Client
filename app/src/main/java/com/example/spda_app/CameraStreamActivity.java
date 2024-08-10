@@ -95,7 +95,6 @@ public class CameraStreamActivity extends AppCompatActivity implements ConnectCh
         btnDebug.setOnClickListener(this);
         btnOnDevice.setOnClickListener(this);
 
-
         txtValue = findViewById(R.id.txtValue);
         txtValue2 = findViewById(R.id.txtValue2);
         txtAvg = findViewById(R.id.txtAvg);

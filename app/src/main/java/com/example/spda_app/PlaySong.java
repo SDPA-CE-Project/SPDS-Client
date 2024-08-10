@@ -41,14 +41,14 @@ public class PlaySong extends AppCompatActivity {
             soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         }
 
+        selectedIndex = AlarmbellSettingActivity.getSelectedIndex();
+
         soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
             @Override
             public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
                 onMusicCompletion();
             }
         });
-
-        selectedIndex = AlarmbellSettingActivity.getSelectedIndex();
 
         switch (selectedIndex) {
             case 0:
@@ -65,7 +65,7 @@ public class PlaySong extends AppCompatActivity {
         }
     }
     // 선택된 음악을 재생하는 메서드
-    public void playMusic() {
+    public void playAlarm() {
         if (!isPlaying) { // 재생 중이 아닌 경우에만 재생
             streamId = soundPool.play(soundID, 1.0f, 1.0f, 1, -1, 1.0f);
             isPlaying = true;
@@ -81,8 +81,8 @@ public class PlaySong extends AppCompatActivity {
         return isPlaying;
     }
 
-    public void stopSound() {
-        if (isPlaying && streamId != -1) {
+    public void stopAlarm() {
+        if (isPlaying) {
             soundPool.stop(streamId);
             streamId = soundPool.play(soundID, 1.0f, 1.0f, 1, 0, 1.0f); // 초기 상태로 돌리기 위해 다시 재생
             soundPool.stop(streamId); // 바로 중지하여 재생 위치를 초기 상태로

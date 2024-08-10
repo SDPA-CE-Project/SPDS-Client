@@ -44,6 +44,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".AlarmSettingActivity" />
+        <activity android:name=".ExplanationActivity"/>
+        <activity android:name=".MainActivity2"/>
         <activity
             android:name=".VibrationSettingActivity"
             android:exported="false"
@@ -64,6 +66,9 @@
         <activity
             android:name=".CameraStreamActivity"
             android:exported="false" />
+        <activity android:name=".ProfileSettingActivity"
+            android:parentActivityName=".MainActivity2"
+            android:theme="@style/Theme.Actionbar"/>
     </application>
 
 </manifest>

@@ -3,6 +3,7 @@ package com.example.spda_app;
 import static org.tensorflow.lite.DataType.FLOAT32;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -87,6 +88,9 @@ public class OndeviceActivity extends AppCompatActivity {
 
     private CustomObjectDetectorOptions customObjectDetectorOptions;
     private ObjectDetector objectDetector;
+    private String selectedItem1;
+    private String selectedItem2;
+    private String selectedItem3;
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
     BlinkCountThread blinkCountThread = new BlinkCountThread();
@@ -97,6 +101,13 @@ public class OndeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
+
+        Intent intent = getIntent();
+
+        selectedItem1 = intent.getStringExtra("selectedItem1");
+        selectedItem2 = intent.getStringExtra("selectedItem2");
+        selectedItem3 = intent.getStringExtra("selectedItem3");
+
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
         graphicOverlay = findViewById(R.id.vw_overlay);
@@ -110,12 +121,11 @@ public class OndeviceActivity extends AppCompatActivity {
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
+
         playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
         playVibrate = new PlayVibrate(this);
 
-//        playSong = new PlaySong(this);
-        playMedia = new PlayMedia(this);
 
         try {
             interpreter = new Interpreter(loadModelFile(model_4));
@@ -311,28 +321,60 @@ public class OndeviceActivity extends AppCompatActivity {
         if(sleepCount > 150){
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
-            playSong.stopSound();
-            playVibrate.playVibrate();
+            if (selectedItem3.equals("노래")) {
+                playSong.stopAlarm();
+                playMedia.playAlarm();
+                playVibrate.stopAlarm();
+            } else if (selectedItem3.equals("진동")) {
+                playSong.stopAlarm();
+                playMedia.stopAlarm();
+                playVibrate.playAlarm();
+            } else {
+                playSong.playAlarm();
+                playMedia.stopAlarm();
+                playVibrate.stopAlarm();
+            }
         }
         else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || sleepCount > 100) {
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
-            playSong.playMusic();
-            playMedia.stopMusic();
-            playVibrate.stopVibration();
+            if (selectedItem2.equals("노래")) {
+                playSong.stopAlarm();
+                playMedia.playAlarm();
+                playVibrate.stopAlarm();
+            } else if (selectedItem2.equals("진동")) {
+                playSong.stopAlarm();
+                playMedia.stopAlarm();
+                playVibrate.playAlarm();
+            } else {
+                playSong.playAlarm();
+                playMedia.stopAlarm();
+                playVibrate.stopAlarm();
+            }
         }
         else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || sleepCount > 50) {
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
-            playSong.stopSound();
-            playMedia.playMusic();
-            playVibrate.stopVibration();
+            if (selectedItem1.equals("노래")) {
+                playSong.stopAlarm();
+                playMedia.playAlarm();
+                playVibrate.stopAlarm();
+            } else if (selectedItem1.equals("진동")) {
+                playSong.stopAlarm();
+                playMedia.stopAlarm();
+                playVibrate.playAlarm();
+            } else {
+                playSong.playAlarm();
+                playMedia.stopAlarm();
+                playVibrate.stopAlarm();
+            }
         }
         else {
+            //대기 단계
             txtAlarmLevel.setText(getString(R.string.standby));
-            playMedia.stopMusic();
-            playSong.stopSound();
-            playVibrate.stopVibration();
+            playMedia.stopAlarm();
+            playSong.stopAlarm();
+            playVibrate.stopAlarm();
         }
     }
 

@@ -46,7 +46,12 @@ public class VibrationSettingActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 setSelectedVibrationIndex(position);
                 binding.number.setText(String.valueOf(getSelectedVibrationIndex()));
-                playVibrate.playVibrate(); // 진동 재생
+                if(playVibrate.isPlaying()) {
+                    playVibrate.stopAlarm();
+                    playVibrate = new PlayVibrate(VibrationSettingActivity.this);
+                    playVibrate.playAlarm();
+                }
+                playVibrate.playAlarm(); // 진동 재생
             }
         });
 
@@ -54,7 +59,7 @@ public class VibrationSettingActivity extends AppCompatActivity {
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playVibrate.stopVibration(); // 진동 중지
+                playVibrate.stopAlarm(); // 진동 중지
                 finish();
             }
         });

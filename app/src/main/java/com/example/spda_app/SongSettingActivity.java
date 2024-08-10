@@ -29,6 +29,7 @@ public class SongSettingActivity extends AppCompatActivity {
     private ArrayList<String> mp3List;
 
     private SongSettingBinding binding;
+    private PlayMedia playmedia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,8 @@ public class SongSettingActivity extends AppCompatActivity {
         mp3List.add("Song 2");
         mp3List.add("Song 3");
 
+        playmedia = new PlayMedia(this);
+
         // 리스트뷰 설정 및 어댑터 설정...
         listViewMP3 = binding.listViewMP3;
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_single_choice, mp3List);
@@ -57,6 +60,12 @@ public class SongSettingActivity extends AppCompatActivity {
                 // 클릭한 아이템의 인덱스 값을 selectedMP3Index에 저장
                 setSelectedMP3Index(position);
                 binding.number.setText(String.valueOf(getSelectedMP3Index()));
+                if (playmedia.isPlaying()) {
+                    playmedia.stopAlarm();
+                    playmedia = new PlayMedia(SongSettingActivity.this);
+                    playmedia.playAlarm();
+                }
+                playmedia.playAlarm();
             }
         });
         Button btnConfirm = binding.confirm;
@@ -64,6 +73,7 @@ public class SongSettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 확인 버튼을 클릭했을 때 이전 화면으로 돌아가는 로직을 추가
+                playmedia.stopAlarm();
                 finish();
             }
         });

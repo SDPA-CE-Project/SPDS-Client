@@ -22,7 +22,7 @@ public class AlarmSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding1 = AlarmSettingBinding.inflate(getLayoutInflater());
         setContentView(binding1.getRoot());
-        permissionCheck();
+//        permissionCheck();
 
         // 노래 선택 레이아웃 클릭 이벤트
         binding1.songLinearLayout.setOnClickListener(new View.OnClickListener() {
@@ -81,33 +81,95 @@ public class AlarmSettingActivity extends AppCompatActivity {
     VIBRATE_SERVICE : 진동 권한
     */
 
-    private void permissionCheck(){
-        if (Build.VERSION.SDK_INT>=23){
+//    private void permissionCheck(){
+//        if (Build.VERSION.SDK_INT>=23){
+//            permission = new PermissionSupport(this, this);
+//            //권한이 취소된 경우 다시 요청
+//            if(!permission.checkPermission()){
+//                Toast toast = Toast.makeText(this,"권한이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+//                permission.requestPermission();
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestcode,
+//                                           @NonNull String[] permissions,
+//                                           @NonNull int[] grantResults){
+//        super.onRequestPermissionsResult(requestcode, permissions, grantResults);
+//
+//        // return이 false인 경우 다시 권한 요청
+//        if (!permission.permissionResult(requestcode,permissions,grantResults)){
+//            Toast toast = Toast.makeText(this,"권한이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+//            permission.requestPermission();
+//            if (shouldShowRequestPermissionRationale(permissions[0])) {
+//                DeniedAudioPermission();
+//            } else {
+//                permission.requestPermission();
+//            }
+//        } else {
+//            GrantedAudioPermission();
+//        }
+//    }
+//    // 외부 저장소 사용 가능 여부 판단
+//    public boolean isExternalStorageWritable() {
+//        String state = Environment.getExternalStorageState();
+//        if (state.equals(Environment.MEDIA_MOUNTED)) {
+//            Log.i("SongSettingActivity", "외부 사운드 읽기 쓰기 가능");
+//            return true;
+//        }
+//        return false;
+//    }
+//
+//    // 오디오 권한이 허용되었을 때 실행할 작업
+//    private void GrantedAudioPermission() {
+//        Log.i("SongSettingActivty", "권한 허용 가능");
+//    }
+//
+//    // 오디오 권한이 거부되었을 때 실행할 작업
+//    private void DeniedAudioPermission() {
+//        // 오디오 권한이 거부되었을 때 사용자에게 알림 또는 대응 처리
+//
+//        Log.i("SongSettingActivty", "권한 허용 불가능");
+//    }
+//
+//
+//}
+
+    private void permissionCheck() {
+        if (Build.VERSION.SDK_INT >= 23) {
             permission = new PermissionSupport(this, this);
-            //권한이 취소된 경우 다시 요청
-            if(!permission.checkPermission()){
-                Toast toast = Toast.makeText(this,"권한이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+            // 권한이 취소된 경우 다시 요청
+            if (!permission.checkPermission()) {
+                Toast.makeText(this, "권한이 설정되지 않았습니다.", Toast.LENGTH_SHORT).show();
                 permission.requestPermission();
             }
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestcode,
+    public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
-                                           @NonNull int[] grantResults){
-        super.onRequestPermissionsResult(requestcode, permissions, grantResults);
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         // return이 false인 경우 다시 권한 요청
-        if (!permission.permissionResult(requestcode,permissions,grantResults)){
-            Toast toast = Toast.makeText(this,"권한이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
-            permission.requestPermission();
+        if (!permission.permissionResult(requestCode, permissions, grantResults)) {
+            if (shouldShowRequestPermissionRationale(permissions[0])) {
+                DeniedAudioPermission();
+                Toast.makeText(this, "권한이 필요합니다. 설정에서 권한을 허용해주세요.", Toast.LENGTH_SHORT).show();
+            } else {
+                // 권한 요청을 계속해서 반복하지 않도록 함
+                Toast.makeText(this, "권한이 설정되지 않았습니다. 설정에서 권한을 허용해주세요.", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            GrantedAudioPermission();
         }
     }
-    // 외부 저장소 사용 가능 여부 판단
+
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
-        if (state.equals(Environment.MEDIA_MOUNTED)) {
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
             Log.i("SongSettingActivity", "외부 사운드 읽기 쓰기 가능");
             return true;
         }
@@ -122,9 +184,6 @@ public class AlarmSettingActivity extends AppCompatActivity {
     // 오디오 권한이 거부되었을 때 실행할 작업
     private void DeniedAudioPermission() {
         // 오디오 권한이 거부되었을 때 사용자에게 알림 또는 대응 처리
-
         Log.i("SongSettingActivty", "권한 허용 불가능");
     }
-
-
 }

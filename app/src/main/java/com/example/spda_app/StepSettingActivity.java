@@ -49,32 +49,6 @@ public class StepSettingActivity extends AppCompatActivity {
         spinner03.setSelection(2);
         spinner04.setSelection(3);
 
-//        spinner01.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                // 선택된 item을 토대로 main에서 작업이 일어나도록 설정
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-
-//        binding.abc.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                switch (SongSettingActivity.getSelectedMP3Index()) {
-//                    case 0:
-//                        Toast.makeText(getApplicationContext(), "0번", Toast.LENGTH_SHORT).show();
-//                        break;
-//                    case 1:
-//                        Toast.makeText(getApplicationContext(), "1번", Toast.LENGTH_SHORT).show();
-//                        break;
-//                }
-//            }
-//        });
-
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

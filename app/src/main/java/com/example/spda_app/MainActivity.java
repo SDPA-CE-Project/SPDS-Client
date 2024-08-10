@@ -9,12 +9,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.example.spda_app.databinding.ActivityLogin2Binding;
 import com.example.spda_app.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
+import android.content.SharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
+    private ActivityLogin2Binding binding;
 
     private BannerAdapter adapter;
     private int[] images = {R.drawable.image1, R.drawable.image2, R.drawable.image3};
@@ -24,44 +26,32 @@ public class MainActivity extends AppCompatActivity {
     private boolean isDot3 = false;
     private ViewPager2 viewPager;
 
+    private static final String PREFS_NAME = "MyPrefsFile";
+    private static final String PREF_FIRST_RUN = "firstRun";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        boolean firstRun = settings.getBoolean(PREF_FIRST_RUN, true);
+
+        if (firstRun) {
+            // 첫 실행일 경우 설명 화면으로 이동
+            Intent intent = new Intent(this, ExplanationActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
+        binding = ActivityLogin2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        dot1 = binding.dot1;
-        dot2 = binding.dot2;
-        dot3 = binding.dot3;
 
-        FirebaseApp.initializeApp(this);
+        binding.login.setOnClickListener(new View.OnClickListener() {
 
-        viewPager = findViewById(R.id.viewPager);
-        adapter = new BannerAdapter(this, images);
-        viewPager.setAdapter(adapter);
-        viewPager.setUserInputEnabled(false);
-
-        binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                // dot 이미지 변경 로직
-                if (isDot1) {
-                    viewPager.setCurrentItem(1, true);
-                    dot1.setImageResource(R.drawable.button); // 버튼 이미지 변경
-                    dot2.setImageResource(R.drawable.onbutton); // 다른 버튼 이미지로 변경
-                    dot3.setImageResource(R.drawable.button); // 다른 버튼 이미지로 변경
-                    isDot1 = false;
-                    isDot2 = true;
-                } else if(isDot2) {
-                    viewPager.setCurrentItem(2, true);
-                    dot1.setImageResource(R.drawable.button); // 버튼 이미지 변경
-                    dot2.setImageResource(R.drawable.button); // 다른 버튼 이미지로 변경
-                    dot3.setImageResource(R.drawable.onbutton); // 다른 버튼 이미지로 변경
-                    isDot2 = false;
-                    isDot3 = true;
-                } else {
-                    Intent intent = new Intent(MainActivity.this, AlarmSettingActivity.class);
-                    startActivity(intent);
-                }
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+                startActivity(intent);
             }
         });
     }

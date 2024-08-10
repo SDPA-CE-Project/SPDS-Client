@@ -50,7 +50,7 @@ public class PlayMedia extends AppCompatActivity {
     }
 
     // 선택된 음악을 재생하는 메서드
-    public void playMusic() {
+    public void playAlarm() {
         if (!isPlaying) { // 재생 중이 아닌 경우에만 재생
             isPlaying = true;
             mediaPlayer.start();
@@ -58,7 +58,7 @@ public class PlayMedia extends AppCompatActivity {
     }
 
     // 음악을 중지하는 메서드
-    public void stopMusic() {
+    public void stopAlarm() {
         if (isPlaying) { // 재생 중인 경우에만 중지
             mediaPlayer.pause(); // 재생 중지
             mediaPlayer.seekTo(0); // 시작 부분으로 재생 위치를 이동

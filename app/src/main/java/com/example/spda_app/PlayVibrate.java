@@ -29,7 +29,7 @@ public class PlayVibrate extends AppCompatActivity {
     }
 
     // 선택된 진동 패턴을 재생하는 메서드
-    public void playVibrate() {
+    public void playAlarm() {
         if (!isPlaying) { // 재생 중이 아닌 경우에만 재생
             vibrate(selectedVibrationIndex);
             isPlaying = true;
@@ -51,7 +51,7 @@ public class PlayVibrate extends AppCompatActivity {
         return isPlaying;
     }
 
-    public void stopVibration() {
+    public void stopAlarm() {
         if (isPlaying) {
             vibrator.cancel();
             isPlaying = false;
