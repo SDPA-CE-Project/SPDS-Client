@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -26,7 +26,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SPDA_APP"
-        tools:targetApi="31">
+        tools:targetApi="31" >
+
+        <activity
+            android:name=".FacedetectActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
+
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
@@ -38,7 +48,7 @@
             android:theme="@style/Theme.Actionbar" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,13 +62,13 @@
             android:name=".VibrationSettingActivity"
             android:exported="false"
             android:parentActivityName=".AlarmSettingActivity"
-            android:theme="@style/Theme.Actionbar"/>
+            android:theme="@style/Theme.Actionbar" />
         <activity android:name=".StepSettingActivity" />
         <activity
             android:name=".AlarmbellSettingActivity"
             android:exported="false"
             android:parentActivityName=".AlarmSettingActivity"
-            android:theme="@style/Theme.Actionbar"/>
+            android:theme="@style/Theme.Actionbar" />
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
