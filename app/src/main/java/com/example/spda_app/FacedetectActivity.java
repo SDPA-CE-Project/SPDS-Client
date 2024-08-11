@@ -3,6 +3,7 @@ package com.example.spda_app;
 import static org.tensorflow.lite.DataType.FLOAT32;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
@@ -46,7 +47,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.tensorflow.lite.Interpreter;
@@ -71,6 +74,7 @@ public class FacedetectActivity extends AppCompatActivity {
     private GraphicOverlay graphicOverlay;
 
     private Button next_btn;
+    private ImageButton home_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +85,7 @@ public class FacedetectActivity extends AppCompatActivity {
         graphicOverlay = findViewById(R.id.vw_overlay);
         text_msg = findViewById(R.id.textView_msg);
         next_btn = findViewById(R.id.button_next);
+        home_btn = findViewById(R.id.button_home);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cropoffsetx = cropoffsety = 0;
 
@@ -105,7 +110,22 @@ public class FacedetectActivity extends AppCompatActivity {
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
-
+        next_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(FacedetectActivity.this, OndeviceActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        home_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(FacedetectActivity.this, MainActivity2.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
     }
 

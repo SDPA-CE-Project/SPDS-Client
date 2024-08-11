@@ -823,6 +823,9 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onPause() {
         super.onPause();
+        cameraExecutor.shutdown();
+        faceDetector.close();
+        blinkCountThread.stopThread();
 
     }
     @Override
