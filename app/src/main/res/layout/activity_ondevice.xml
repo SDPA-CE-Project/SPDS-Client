@@ -194,17 +194,28 @@
             android:layout_alignParentEnd="true"
             android:layout_marginBottom="5dp"
             android:text="Logout" />
+
+
+        <Button
+            android:id="@+id/btnChangePasswd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnLogout"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="5dp"
+            android:text="Change Password" />
+
+
+        <Button
+            android:id="@+id/btnDeleteAccount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
+            android:text="Delete\nAccount" />
+
     </RelativeLayout>
 
-
-    <TextView
-        android:id="@+id/txtTimeCheck"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:text="@string/ms"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="@+id/vw_Preview"
-        app:layout_constraintTop_toBottomOf="@+id/imgview" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

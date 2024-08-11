@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
+import com.example.spda_app.DAO.*;
 import com.example.spda_app.face_detect.DrawLandmarkGraphic;
 import com.example.spda_app.face_detect.DrawOverlay;
 import com.example.spda_app.face_detect.GraphicOverlay;
@@ -49,7 +50,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -79,15 +79,17 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
-public class OndeviceActivity extends AppCompatActivity implements View.OnClickListener{
+public class OndeviceActivity extends AppCompatActivity {
+
+    private LogoutUser logoutUser;
     private PreviewView previewView;
     private GraphicOverlay graphicOverlay;
     private ImageView imgView;
     private ExecutorService cameraExecutor;
     private Button btnLogout;
     private FaceDetector faceDetector;
-    private TextView txtLatency, txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel, txtNoseMouthRatio;
-    private Button toggleButton;
+    private TextView txtLeftEAR, txtRightEAR, txtAvgEAR, txtMar, txtSleepCount, txtBlinkCount, txtBlinkAvg, txtCloseTimeAvg, txtAlarmLevel, txtNoseMouthRatio;
+    private Button toggleButton, btnChangePasswd, btnDeleteAccount;
     private LineChart lineChart, totalChart;
     private LineData lineData, totalData;
     private ArrayList<Entry> eyesChartDataList, nodChartDataList, totalChartDataList;
@@ -101,10 +103,9 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private static final String model_2 = "model.tflite";
     private static final String model_3 = "upgraded_model_quantizated_dynamic.tflite";
     private static final String model_4 = "upgraded_model_quantizated_f16.tflite";
-    private static final String model_5 = "FL2_gen2_MNv2_fp16.tflite";
     private Interpreter interpreter;
 
-    private int debugTextVisible = 0;
+    private boolean debugTextVisible = true;
     private double NMRatio = 0;
     private int lowerHead = 0;
 
@@ -126,12 +127,10 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private final boolean returnBiggest = false;
     private CustomObjectDetectorOptions customObjectDetectorOptions;
     private ObjectDetector objectDetector;
-    private String selectedItem1;
-    private String selectedItem2;
-    private String selectedItem3;
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
     private FirebaseAuth mAuth;
+    private long backpressedTime = 0;
 
     //BackgroundTreadTime threadTime = new BackgroundTreadTime();
 
@@ -151,7 +150,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         limitLine.enableDashedLine(10f, 10f, 0f);
         lineChart.getAxisLeft().addLimitLine(limitLine);
 
-        limitLine = new LimitLine(1.2f, "Nod Threshold");
+        limitLine = new LimitLine(1.3f, "Nod Threshold");
         limitLine.setLineWidth(2f);
         limitLine.setLineColor(android.graphics.Color.BLUE);
         limitLine.enableDashedLine(10f, 10f, 0f);
@@ -159,55 +158,20 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         lineChart.getAxisRight().setEnabled(false);
         totalChart.getAxisRight().setEnabled(false);
         totalChart.getAxisLeft().setAxisMaximum(0f);
-        totalChart.getAxisLeft().setAxisMaximum(500);
+        totalChart.getAxisLeft().setAxisMaximum(200);
 
-        limitLine = new LimitLine(150f, "level 1");
+        limitLine = new LimitLine(50f, "level 1");
         limitLine.setLineColor(Color.YELLOW);
         limitLine.enableDashedLine(10f, 10f, 0f);
         totalChart.getAxisLeft().addLimitLine(limitLine);
-        limitLine = new LimitLine(300f, "level 2");
+        limitLine = new LimitLine(100f, "level 2");
         limitLine.setLineColor(Color.rgb(255, 165, 0));//Orange color
         limitLine.enableDashedLine(10f, 10f, 0f);
         totalChart.getAxisLeft().addLimitLine(limitLine);
-        limitLine = new LimitLine(450f, "level 3");
+        limitLine = new LimitLine(150f, "level 3");
         limitLine.setLineColor(Color.RED);
         limitLine.enableDashedLine(10f, 10f, 0f);
         totalChart.getAxisLeft().addLimitLine(limitLine);
-
-
-
-        lineData = new LineData();
-        //combinedData = new CombinedData();
-
-
-        eyesLineDataSet = new LineDataSet(eyesChartDataList, "eyes");
-        eyesLineDataSet.setColor(Color.RED);
-        eyesLineDataSet.setCircleColor(Color.RED);
-        nodLineDataSet = new LineDataSet(nodChartDataList, "nod");
-        lineData.addDataSet(eyesLineDataSet);
-        lineData.addDataSet(nodLineDataSet);
-
-
-        totalData = new LineData();
-        totalChartDataSet = new LineDataSet(totalChartDataList,"totalSleep");
-        totalChartDataSet.setColor(Color.GREEN);
-        totalChartDataSet.setCircleColor(Color.GREEN);
-        totalData.addDataSet(totalChartDataSet);
-
-        //combinedData.addDataSet(eyesLineDataSet);
-        //combinedData.addDataSet(nodLineDataSet);
-
-
-        //totalChart.setData( new LineDataSet(totalChartDataList,"total"));
-
-        lineChart.setData(lineData);
-        totalChart.setData(totalData);
-        totalChart.getDescription().setEnabled(false);
-        totalChart.getLegend().setForm(Legend.LegendForm.LINE);
-        lineChart.getDescription().setEnabled(false);
-        Legend legend = lineChart.getLegend();
-        legend.setForm(Legend.LegendForm.LINE);
-
     }
 
 
@@ -282,13 +246,12 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     }
     private  void toggleDebugingTextVisiblity()
     {
-        debugTextVisible = (debugTextVisible + 1)%3;
+        debugTextVisible = !debugTextVisible;
 
 
-        if(debugTextVisible == 0)
+        if(debugTextVisible)
         {
             imgView.setVisibility(View.VISIBLE);
-            txtLatency.setVisibility(View.VISIBLE);
             txtLeftEAR.setVisibility(View.VISIBLE);
             txtRightEAR.setVisibility(View.VISIBLE);
             txtAvgEAR.setVisibility(View.VISIBLE);
@@ -300,33 +263,10 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             txtAlarmLevel.setVisibility(View.VISIBLE);
             txtNoseMouthRatio.setVisibility(View.VISIBLE);
             graphicOverlay.setVisibility(View.VISIBLE);
-
-            totalChart.setVisibility(View.GONE);
-            lineChart.setVisibility(View.GONE);
-        }
-        else if(debugTextVisible == 1)
-        {
-            imgView.setVisibility(View.GONE);
-            txtLatency.setVisibility(View.GONE);
-            txtLeftEAR.setVisibility(View.GONE);
-            txtRightEAR.setVisibility(View.GONE);
-            txtAvgEAR.setVisibility(View.GONE);
-            txtMar.setVisibility(View.GONE);
-            txtSleepCount.setVisibility(View.GONE);
-            txtBlinkCount.setVisibility(View.GONE);
-            txtBlinkAvg.setVisibility(View.GONE);
-            txtCloseTimeAvg.setVisibility(View.GONE);
-            txtAlarmLevel.setVisibility(View.GONE);
-            txtNoseMouthRatio.setVisibility(View.GONE);
-            graphicOverlay.setVisibility(View.GONE);
-
-            totalChart.setVisibility(View.VISIBLE);
-            lineChart.setVisibility(View.VISIBLE);
         }
         else
         {
             imgView.setVisibility(View.GONE);
-            txtLatency.setVisibility(View.GONE);
             txtLeftEAR.setVisibility(View.GONE);
             txtRightEAR.setVisibility(View.GONE);
             txtAvgEAR.setVisibility(View.GONE);
@@ -338,9 +278,6 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             txtAlarmLevel.setVisibility(View.GONE);
             txtNoseMouthRatio.setVisibility(View.GONE);
             graphicOverlay.setVisibility(View.GONE);
-
-            totalChart.setVisibility(View.GONE);
-            lineChart.setVisibility(View.GONE);
         }
     }
 
@@ -349,18 +286,9 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
-<<<<<<< HEAD
-
-        Intent intent = getIntent();
-
-        selectedItem1 = intent.getStringExtra("selectedItem1");
-        selectedItem2 = intent.getStringExtra("selectedItem2");
-        selectedItem3 = intent.getStringExtra("selectedItem3");
-
-=======
-        txtLatency = findViewById(R.id.txtTimeCheck);
         btnLogout = findViewById(R.id.btnLogout);
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
+        btnChangePasswd = findViewById(R.id.btnChangePasswd);
+        btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
         graphicOverlay = findViewById(R.id.vw_overlay);
@@ -376,18 +304,12 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         txtNoseMouthRatio = findViewById(R.id.txtNMRatio);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
-<<<<<<< HEAD
-
-=======
         lineChart = findViewById(R.id.lineChart);
         totalChart = findViewById(R.id.totallineChart);
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
         playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
         playVibrate = new PlayVibrate(this);
 
-<<<<<<< HEAD
-=======
 
         totalChartDataList = new ArrayList<Entry>();
         eyesChartDataList = new ArrayList<Entry>();
@@ -401,10 +323,9 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         // Logout 전용 firebase 연동
         mAuth = FirebaseAuth.getInstance();
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
 
         try {
-            interpreter = new Interpreter(loadModelFile(model_5));
+            interpreter = new Interpreter(loadModelFile(model_4));
         } catch (IOException e) {
             e.getMessage();
             throw new RuntimeException(e);
@@ -423,7 +344,37 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             );
         }
         cameraExecutor = Executors.newSingleThreadExecutor();
+        lineData = new LineData();
+        //combinedData = new CombinedData();
 
+
+        eyesLineDataSet = new LineDataSet(eyesChartDataList, "eyes");
+        eyesLineDataSet.setColor(Color.RED);
+        eyesLineDataSet.setCircleColor(Color.RED);
+        nodLineDataSet = new LineDataSet(nodChartDataList, "nod");
+        lineData.addDataSet(eyesLineDataSet);
+        lineData.addDataSet(nodLineDataSet);
+
+
+        totalData = new LineData();
+        totalChartDataSet = new LineDataSet(totalChartDataList,"totalSleep");
+        totalChartDataSet.setColor(Color.GREEN);
+        totalChartDataSet.setCircleColor(Color.GREEN);
+        totalData.addDataSet(totalChartDataSet);
+
+        //combinedData.addDataSet(eyesLineDataSet);
+        //combinedData.addDataSet(nodLineDataSet);
+
+
+        //totalChart.setData( new LineDataSet(totalChartDataList,"total"));
+
+        lineChart.setData(lineData);
+        totalChart.setData(totalData);
+        totalChart.getDescription().setEnabled(false);
+        totalChart.getLegend().setForm(Legend.LegendForm.LINE);
+        lineChart.getDescription().setEnabled(false);
+        Legend legend = lineChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
 
         toggleButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -435,25 +386,56 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClick(view);
+                logoutUser.logout(OndeviceActivity.this);
+            }
+        });
+
+        btnChangePasswd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                String userId = mAuth.getUid();
+
+                if (userId != null) {
+                    ChangePasswd changePasswdDialog = new ChangePasswd(OndeviceActivity.this, userId);
+                    changePasswdDialog.show();
+                } else {
+                    Toast.makeText(OndeviceActivity.this, "사용자 정보를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+                */
+            }
+        });
+
+        btnDeleteAccount.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
             }
         });
 
     }
-    public void onClick(View view){
-        mAuth.signOut();
-        if (mAuth.getCurrentUser() == null) {
-            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "User Logout: No user is logged in.");
-            Intent intent = new Intent(OndeviceActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish(); // Optional: Close the current activity or redirect to a login screen
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis() > backpressedTime + 2000) {
+            Toast.makeText(this, "뒤로 한 번 더 누르면 종료합니다.", Toast.LENGTH_SHORT).show();
+            backpressedTime = System.currentTimeMillis();
         }
-        else {
-            Toast.makeText(this, "Logout failed", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "User Logout: " + mAuth.getCurrentUser().toString());
+        else if (System.currentTimeMillis() <= backpressedTime + 2000){
+            Log.d(TAG, "Application is terminate : " + System.currentTimeMillis());
+            super.onBackPressed();
+            finishAffinity();         // activity terminate
+            System.exit(0);     // process terminate
         }
     }
+
+
+
+
+
+
+
+
+
 
     private void startDetect() {
         LifecycleCameraController cameraController = new LifecycleCameraController(getBaseContext());
@@ -479,17 +461,11 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
 
                         Bitmap croppedFace = cropFaceResize(fullImage, faceResult.get(0).getBoundingBox());
-                        float[] normalizedFace = normalize(croppedFace);
-
                         TensorImage inputImageBuffer = new TensorImage(FLOAT32);
-                        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(normalizedFace.length * 4);
-                        byteBuffer.order(ByteOrder.nativeOrder());
-                        FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
-                        floatBuffer.put(normalizedFace);
-                        //inputImageBuffer.load(floatBuffer);
+                        inputImageBuffer.load(croppedFace);
 
                         TensorBuffer outputBuffer2 = TensorBuffer.createFixedSize(new int[]{1, 136}, FLOAT32);
-                        interpreter.run(floatBuffer, outputBuffer2.getBuffer());
+                        interpreter.run(inputImageBuffer.getBuffer(), outputBuffer2.getBuffer());
 
                         float[] flatArray = (outputBuffer2.getFloatArray());
 
@@ -509,12 +485,12 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                         //previewView.getOverlay().add(drawLandmark);
 
                         graphicOverlay.add(new DrawLandmarkGraphic(graphicOverlay, landmark));
-                        txtLeftEAR.setText(String.format("%.4f", landmark.earLeft()));
-                        txtRightEAR.setText(String.format("%.4f", landmark.earRight()));
-                        txtAvgEAR.setText(String.format("%.4f", landmark.earAvg()));
-//                        txtLeftEAR.setText(String.format("%.4f", leftEye));
-//                        txtRightEAR.setText(String.format("%.4f", rightEye));
-//                        txtAvgEAR.setText(String.format("%.4f", avg));
+//                        txtLeftEAR.setText(String.format("%.4f", landmark.earLeft()));
+//                        txtRightEAR.setText(String.format("%.4f", landmark.earRight()));
+//                        txtAvgEAR.setText(String.format("%.4f", landmark.earAvg()));
+                        txtLeftEAR.setText(String.format("%.4f", leftEye));
+                        txtRightEAR.setText(String.format("%.4f", rightEye));
+                        txtAvgEAR.setText(String.format("%.4f", avg));
                         txtMar.setText(String.format("%.4f", landmark.marAvg()));
 
                         txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
@@ -538,29 +514,6 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         previewView.setController(cameraController);
 
-    }
-    public static float[] normalize(Bitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        float[] normalizedPixels = new float[width * height * 3];
-        float[] imgMean = {0.485f, 0.456f, 0.406f};
-        float[] imgStd = {0.229f, 0.224f, 0.225f};
-
-        int[] pixels = new int[width * height];
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-
-        for (int i = 0; i < pixels.length; i++) {
-            int pixel = pixels[i];
-            float r = Color.red(pixel) / 255.0f;
-            float g = Color.green(pixel) / 255.0f;
-            float b = Color.blue(pixel) / 255.0f;
-
-            normalizedPixels[i * 3] = (r - imgMean[0]) / imgStd[0];
-            normalizedPixels[i * 3 + 1] = (g - imgMean[1]) / imgStd[1];
-            normalizedPixels[i * 3 + 2] = (b - imgMean[2]) / imgStd[2];
-        }
-
-        return normalizedPixels;
     }
 
     private class BlinkCountThread extends Thread {
@@ -621,7 +574,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         private void headAngleDetect()
         {
-            if(NMRatio > 1.2f)  //고개 내림 감지, 해당 임계 값은 모델 개선 테스트 후 수정 되어야 하거나 사용자 마다 다르게 해야할 필요성이 있음
+            if(NMRatio > 1.3f)  //고개 내림 감지, 해당 임계 값은 모델 개선 테스트 후 수정 되어야 하거나 사용자 마다 다르게 해야할 필요성이 있음
             {
                 lowerHead += 1;
             }
@@ -644,14 +597,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
 
 
-                if (avg < 0.3f && sleepCount < 500) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
+                if (avg < 0.3f && sleepCount < 200) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
                     sleepCount += 2;
                     if(!blinkCheck.get()) {
                         blinkCheck.set(true);
                         blinkCountThread.recordCount();
                     }
                 }
-                else if (avg < 0.6f && sleepCount < 500) { //눈 0.6 미만 sleepCount 증가
+                else if (avg < 0.6f && sleepCount < 200) { //눈 0.6 미만 sleepCount 증가
                     sleepCount += 1;
                 }
                 else if (avg >= 0.7f) { // 눈 0.7 이상 눈 뜸 확인, 깜빡임 증가, 감은 시간 평균, sleepCount 초기화
@@ -677,63 +630,31 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private void sleepAlarm() {
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         int timeCount = blinkCountThread.getBlinkRunCount();
-        if(GetTotalSleepCount() > 450){
+        if(GetTotalSleepCount() > 150){
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
-            if (selectedItem3.equals("노래")) {
-                playSong.stopAlarm();
-                playMedia.playAlarm();
-                playVibrate.stopAlarm();
-            } else if (selectedItem3.equals("진동")) {
-                playSong.stopAlarm();
-                playMedia.stopAlarm();
-                playVibrate.playAlarm();
-            } else {
-                playSong.playAlarm();
-                playMedia.stopAlarm();
-                playVibrate.stopAlarm();
-            }
+            playSong.stopSound();
+            playVibrate.playVibrate();
         }
-        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 300) {
+        else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 100) {
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
-            if (selectedItem2.equals("노래")) {
-                playSong.stopAlarm();
-                playMedia.playAlarm();
-                playVibrate.stopAlarm();
-            } else if (selectedItem2.equals("진동")) {
-                playSong.stopAlarm();
-                playMedia.stopAlarm();
-                playVibrate.playAlarm();
-            } else {
-                playSong.playAlarm();
-                playMedia.stopAlarm();
-                playVibrate.stopAlarm();
-            }
+            playSong.playMusic();
+            playMedia.stopMusic();
+            playVibrate.stopVibration();
         }
-        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 150) {
+        else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 50) {
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
-            if (selectedItem1.equals("노래")) {
-                playSong.stopAlarm();
-                playMedia.playAlarm();
-                playVibrate.stopAlarm();
-            } else if (selectedItem1.equals("진동")) {
-                playSong.stopAlarm();
-                playMedia.stopAlarm();
-                playVibrate.playAlarm();
-            } else {
-                playSong.playAlarm();
-                playMedia.stopAlarm();
-                playVibrate.stopAlarm();
-            }
+            playSong.stopSound();
+            playMedia.playMusic();
+            playVibrate.stopVibration();
         }
         else {
-            //대기 단계
             txtAlarmLevel.setText(getString(R.string.standby));
-            playMedia.stopAlarm();
-            playSong.stopAlarm();
-            playVibrate.stopAlarm();
+            playMedia.stopMusic();
+            playSong.stopSound();
+            playVibrate.stopVibration();
         }
     }
 
@@ -754,38 +675,24 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         int faceWidth = right - left;
         int faceHeight = bottom - top;
 
-        float scaleFactor = 1.4f;
-        float offsetX = faceWidth * 0;
-        float offsetY = faceHeight * 0.13f;
+        float scaleFactor = 1.5f;
 
-        //int expandedWidth = (int) (faceWidth * scaleFactor);
-        //int expandedHeight = (int) (faceHeight * scaleFactor);
+        int expandedWidth = (int) (faceWidth * scaleFactor);
+        int expandedHeight = (int) (faceHeight * scaleFactor);
 
-        int faceCenterX = (left + right) / 2 + (int)offsetX;
-        int faceCenterY = (top + bottom) / 2 + (int)offsetY;
+        int faceCenterX = (left + right) / 2;
+        int faceCenterY = (top + bottom) / 2;
 
-        int margin = (int)((Math.max(faceWidth, faceHeight) * scaleFactor) / 2);
+        int expandedLeft = Math.max(faceCenterX - expandedWidth / 2, 0);
+        int expandedTop = Math.max(faceCenterY - expandedHeight / 2, 0);
+        int expandedRight = Math.min(faceCenterX + expandedWidth / 2, width);
+        int expandedBottom = Math.min(faceCenterY + expandedHeight / 2, height);
 
-//        int expandedLeft = Math.max(faceCenterX - (expandedWidth / 2), 0);
-//        int expandedTop = Math.max(faceCenterY - (expandedHeight / 2), 0);
-//        int expandedRight = Math.min(faceCenterX + (expandedWidth / 2), width);
-//        int expandedBottom = Math.min(faceCenterY + (expandedHeight / 2), height);
-
-//        Bitmap faceBitmap = Bitmap.createBitmap(fullImage,
-//                expandedLeft,
-//                expandedTop,
-//                expandedRight - expandedLeft,
-//                expandedBottom - expandedTop);
-        int expendedLeft = faceCenterX - margin;
-        expendedLeft = Math.max(expendedLeft, 0);
-        int expendedRight = faceCenterX + margin;
-        expendedRight = Math.min(expendedRight, width);
-        int expendedTop = faceCenterY - margin;
-        expendedTop = Math.max(expendedTop, 0);
-        int expendedBottom = faceCenterY + margin;
-        expendedBottom = Math.min(expendedBottom, height);
         Bitmap faceBitmap = Bitmap.createBitmap(fullImage,
-                expendedLeft, expendedTop,expendedRight - expendedLeft,expendedBottom - expendedTop);
+                expandedLeft,
+                expandedTop,
+                expandedRight - expandedLeft,
+                expandedBottom - expandedTop);
 
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(faceBitmap, 256, 256, true);
 
@@ -878,4 +785,33 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     }
+
+
+    private String getUserId() {
+        return mAuth.getUid();
+    }
+
+    private String getEmail() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        return (user != null) ? user.getEmail() : null;
+    }
+
+    private String getPassword() {
+        // 비밀번호는 Firebase Auth에서 직접적으로 가져올 수 없기 때문에, 저장하거나 사용자 입력을 통해 가져와야 합니다.
+        // 비밀번호를 저장한 후 가져오는 로직을 구현해야 합니다. 이 예제에서는 저장된 비밀번호를 반환합니다.
+        return "stored_password"; // 실제 저장된 비밀번호로 대체해야 합니다.
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

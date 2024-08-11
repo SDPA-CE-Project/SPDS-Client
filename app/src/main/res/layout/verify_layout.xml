@@ -6,38 +6,35 @@
     android:minWidth="400dp"
     android:orientation="vertical"
     android:padding="20dp"
-    android:gravity="center">
+    android:gravity="center_horizontal">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_marginBottom="16dp"
-        android:minWidth="30dp"
-        android:text="Find User Password"
+        android:text="Enter Verification Code"
         android:textSize="20dp"
         android:textStyle="bold" />
-    
-    
-    <TextView
-        android:id="@+id/guidePasswd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity = "center_horizontal"
-        android:text="입력하신 이메일을 확인해주시길 바랍니다\n 해당 메일함에서 \재설정 코드를 입력해 주세요"
-        android:textSize="15dp"
-        android:textStyle="bold"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="20dp"
-        />
+
+    <EditText
+        android:id="@+id/verificationCode"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:ems="18"
+        android:hint="Verification Code"
+        android:inputType="number"
+        android:textSize="16sp" />
 
     <Button
-        android:id="@+id/okBtn"
+        android:id="@+id/submitBtn"
         android:layout_width="100dp"
         android:layout_height="40dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="#A5E3E9"
-        android:text="OK"
+        android:text="입력"
         android:textColor="@color/black" />
-
 
 </LinearLayout>

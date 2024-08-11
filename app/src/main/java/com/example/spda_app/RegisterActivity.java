@@ -31,6 +31,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.auth.User;
+import com.example.spda_app.DAO.CreateAccount;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +44,12 @@ import java.util.regex.Pattern;
 
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
+
+    private CreateAccount createAccount;
     private static final String TAG = "RegisterActivity";
     public static final int sub = 1002;
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private Button btnChkMail, btnRegister;
     private EditText makeEmail, makePasswd, makePasswdAgain;
@@ -51,7 +58,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        createAccount = new CreateAccount();
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         btnChkMail = findViewById(R.id.btnChkMail);
         btnRegister = findViewById(R.id.btnRegister);
         makeEmail = findViewById(R.id.makeEmail);
@@ -151,16 +160,44 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
     private void createAccount(String email, String password) {
+        createAccount.createAccount(email, password, task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser user = mAuth.getCurrentUser();
+                createAccount.saveUserToDatabase(user, email, password);
+                Log.d(TAG, "createUserWithEmail:success");
+                Toast.makeText(RegisterActivity.this, "Create successes.",
+                        Toast.LENGTH_SHORT).show();
+                updateUI(user);
+            } else {
+                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                Toast.makeText(RegisterActivity.this, "Authentication failed." + task.getException().getMessage(),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        /*
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+
+                            // userId를 기반으로 Realtime DB의 Users에 idtoken, email, passwd 등록
+                            // 추후 사용자 관련
+                            String userId = user.getUid();
+                            UserAccount useraccount = new UserAccount();
+                            useraccount.setIdToken(userId);
+                            useraccount.setEmailId(email);
+                            useraccount.setPassword(password);
+
+                            // 이곳에 콜백을 넣어야할까???
+                            mDatabase.child("users").child(userId).setValue(useraccount);
+
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             Toast.makeText(RegisterActivity.this, "Create successes.",
                                     Toast.LENGTH_SHORT).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
+
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -171,6 +208,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         }
                     }
                 });
+         */
 
     }
     private void updateUI(FirebaseUser user) {

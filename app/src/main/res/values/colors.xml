@@ -3,10 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#CCAEAE</color>
-<<<<<<< HEAD
-    <color name="light_blue">#DADEF6</color>
-=======
     <color name="sky">#AEDFF7</color>
     <color name="blue">#2196F3</color>
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
 </resources>

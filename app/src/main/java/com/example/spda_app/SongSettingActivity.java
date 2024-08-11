@@ -29,7 +29,6 @@ public class SongSettingActivity extends AppCompatActivity {
     private ArrayList<String> mp3List;
 
     private SongSettingBinding binding;
-    private PlayMedia playmedia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +38,11 @@ public class SongSettingActivity extends AppCompatActivity {
 
         binding.number.setText(String.valueOf(getSelectedMP3Index()));
 
-        // \음악 리스트 초기화
+        // 음악 리스트 초기화
         mp3List = new ArrayList<>();
         mp3List.add("Song 1");
         mp3List.add("Song 2");
         mp3List.add("Song 3");
-
-        playmedia = new PlayMedia(this);
 
         // 리스트뷰 설정 및 어댑터 설정...
         listViewMP3 = binding.listViewMP3;
@@ -60,20 +57,6 @@ public class SongSettingActivity extends AppCompatActivity {
                 // 클릭한 아이템의 인덱스 값을 selectedMP3Index에 저장
                 setSelectedMP3Index(position);
                 binding.number.setText(String.valueOf(getSelectedMP3Index()));
-                if (playmedia.isPlaying()) {
-<<<<<<< HEAD
-                    playmedia.stopAlarm();
-                    playmedia = new PlayMedia(SongSettingActivity.this);
-                    playmedia.playAlarm();
-                }
-                playmedia.playAlarm();
-=======
-                    playmedia.stopMusic();
-                    playmedia = new PlayMedia(SongSettingActivity.this);
-                    playmedia.playMusic();
-                }
-                playmedia.playMusic();
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
             }
         });
         Button btnConfirm = binding.confirm;
@@ -81,11 +64,6 @@ public class SongSettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 확인 버튼을 클릭했을 때 이전 화면으로 돌아가는 로직을 추가
-<<<<<<< HEAD
-                playmedia.stopAlarm();
-=======
-                playmedia.stopMusic();
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
                 finish();
             }
         });

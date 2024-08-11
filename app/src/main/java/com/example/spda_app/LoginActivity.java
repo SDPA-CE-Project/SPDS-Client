@@ -18,17 +18,22 @@ import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spda_app.DAO.Hello;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.auth.User;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener{
 
     private static final String TAG = "LoginActivity";
     public static final int sub = 1001;
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
     private Button btnSign;
     private EditText edtEmail, edtPasswd;
     private TextView registerQuestion, resetQuestion;
@@ -36,11 +41,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private SharedPreferences appData;
     // 사용자 정보 저장
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         btnSign = findViewById(R.id.btnSign);
         edtEmail = findViewById(R.id.edtMail);
         edtPasswd = findViewById(R.id.edtPasswd);
@@ -55,8 +63,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         resetQuestion.setOnTouchListener(this);
         resetQuestion.setOnClickListener(this);
 
-
-
         appData = getSharedPreferences("appData", MODE_PRIVATE);
         // UI 설정 정보 불러오기
         loadInfo();
@@ -66,6 +72,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
+
+
     }
 
     @Override
@@ -194,17 +203,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
     }
+
+    private void showVerificationDialog(String email) {
+        Dialog dialog = new Dialog(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.reset_layout, null);
+    }
+
+
     private void showResetDialog2() {
         Dialog dialog = new Dialog(this);
-        View dialogView = LayoutInflater.from(this).inflate(R.layout.reset_layout2, null);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.verify_layout, null);
 
         // dialog title
-        dialog.setTitle("reset success");
+        dialog.setTitle("Authentication Form");
 
         // dialog layout
         dialog.setContentView(dialogView);
 
-        Button okBtn = dialogView.findViewById(R.id.okBtn);
+        Button okBtn = dialogView.findViewById(R.id.submitBtn);
         okBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
