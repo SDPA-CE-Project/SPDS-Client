@@ -673,53 +673,28 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         if(GetTotalSleepCount() > 450){
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
-            if (selectedItem3.equals("노래")) {
-                playSong.stopAlarm();
-                playMedia.playAlarm();
-                playVibrate.stopAlarm();
-            } else if (selectedItem3.equals("진동")) {
-                playSong.stopAlarm();
-                playMedia.stopAlarm();
-                playVibrate.playAlarm();
-            } else {
-                playSong.playAlarm();
-                playMedia.stopAlarm();
-                playVibrate.stopAlarm();
-            }
+
+            playSong.playAlarm();
+            playMedia.stopAlarm();
+            playVibrate.stopAlarm();
+
         }
         else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 300) {
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
-            if (selectedItem2.equals("노래")) {
-                playSong.stopAlarm();
-                playMedia.playAlarm();
-                playVibrate.stopAlarm();
-            } else if (selectedItem2.equals("진동")) {
-                playSong.stopAlarm();
-                playMedia.stopAlarm();
-                playVibrate.playAlarm();
-            } else {
-                playSong.playAlarm();
-                playMedia.stopAlarm();
-                playVibrate.stopAlarm();
-            }
+
+            playSong.playAlarm();
+            playMedia.stopAlarm();
+            playVibrate.stopAlarm();
+
         }
         else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 150) {
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
-            if (selectedItem1.equals("노래")) {
-                playSong.stopAlarm();
-                playMedia.playAlarm();
-                playVibrate.stopAlarm();
-            } else if (selectedItem1.equals("진동")) {
-                playSong.stopAlarm();
-                playMedia.stopAlarm();
-                playVibrate.playAlarm();
-            } else {
-                playSong.playAlarm();
-                playMedia.stopAlarm();
-                playVibrate.stopAlarm();
-            }
+            playSong.playAlarm();
+            playMedia.stopAlarm();
+            playVibrate.stopAlarm();
+
         }
         else {
             //대기 단계

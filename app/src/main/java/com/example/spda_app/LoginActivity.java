@@ -252,7 +252,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     FirebaseUser user = mAuth.getCurrentUser();
                     edtEmail.setText("");
                     edtPasswd.setText("");
-                    Intent intent = new Intent(LoginActivity.this, OndeviceActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, FacedetectActivity.class);
                     startActivity(intent);
                 } else {
                     // If sign in fails, display a message to the user.

@@ -46,14 +46,13 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityLogin2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-//        mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
-//        setContentView(mainBinding.getRoot());
+
 
         binding.login.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
         });

@@ -69,7 +69,7 @@ public class ExplanationActivity extends AppCompatActivity {
                     editor.putBoolean(PREF_FIRST_RUN, false);
                     editor.apply();
 
-                    Intent intent = new Intent(ExplanationActivity.this, MainActivity.class);
+                    Intent intent = new Intent(ExplanationActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
             }
