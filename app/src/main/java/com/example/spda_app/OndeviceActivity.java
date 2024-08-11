@@ -349,18 +349,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
-<<<<<<< HEAD
-
         Intent intent = getIntent();
 
         selectedItem1 = intent.getStringExtra("selectedItem1");
         selectedItem2 = intent.getStringExtra("selectedItem2");
         selectedItem3 = intent.getStringExtra("selectedItem3");
-
-=======
         txtLatency = findViewById(R.id.txtTimeCheck);
         btnLogout = findViewById(R.id.btnLogout);
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
+
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
         graphicOverlay = findViewById(R.id.vw_overlay);
@@ -376,18 +372,15 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         txtNoseMouthRatio = findViewById(R.id.txtNMRatio);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
-<<<<<<< HEAD
 
-=======
+
         lineChart = findViewById(R.id.lineChart);
         totalChart = findViewById(R.id.totallineChart);
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
+
         playSong = new PlaySong(this);
         playMedia = new PlayMedia(this);
         playVibrate = new PlayVibrate(this);
 
-<<<<<<< HEAD
-=======
 
         totalChartDataList = new ArrayList<Entry>();
         eyesChartDataList = new ArrayList<Entry>();
@@ -401,7 +394,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         // Logout 전용 firebase 연동
         mAuth = FirebaseAuth.getInstance();
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
+
 
         try {
             interpreter = new Interpreter(loadModelFile(model_5));
