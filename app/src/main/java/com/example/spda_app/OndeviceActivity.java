@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
+import com.example.spda_app.DAO.DeleteAccount;
 import com.example.spda_app.face_detect.DrawLandmarkGraphic;
 import com.example.spda_app.face_detect.DrawOverlay;
 import com.example.spda_app.face_detect.GraphicOverlay;
@@ -33,6 +34,8 @@ import com.example.spda_app.threads.PlayAlarmThread;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.data.CombinedData;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -432,6 +435,34 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+        /*
+        btnDeleteAccount.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                // 현재 로그인한 사용자의 이메일 얻기
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+                if (currentUser != null) {
+                    String email = currentUser.getEmail();
+
+                    DeleteAccount.deleteUserByEmail(email);
+
+                    currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                // 계정 삭제 후, 필요한 UI 업데이트 또는 리다이렉트
+                                Log.d("DeleteAccount", "User account deleted.");
+                            } else {
+                                Log.w("DeleteAccount", "Failed to delete user account.", task.getException());
+                            }
+                        }
+                    });
+                } else {
+                    Log.w("DeleteAccount", "No user is currently signed in.");
+                }
+            }
+        });
+        */
     }
     public void onClick(View view){
         mAuth.signOut();
