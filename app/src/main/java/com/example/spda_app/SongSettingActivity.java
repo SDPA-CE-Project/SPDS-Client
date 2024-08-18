@@ -61,19 +61,15 @@ public class SongSettingActivity extends AppCompatActivity {
                 setSelectedMP3Index(position);
                 binding.number.setText(String.valueOf(getSelectedMP3Index()));
                 if (playmedia.isPlaying()) {
-<<<<<<< HEAD
+
                     playmedia.stopAlarm();
                     playmedia = new PlayMedia(SongSettingActivity.this);
                     playmedia.playAlarm();
                 }
                 playmedia.playAlarm();
-=======
-                    playmedia.stopMusic();
-                    playmedia = new PlayMedia(SongSettingActivity.this);
-                    playmedia.playMusic();
-                }
-                playmedia.playMusic();
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
+
+
+
             }
         });
         Button btnConfirm = binding.confirm;
@@ -81,11 +77,9 @@ public class SongSettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 확인 버튼을 클릭했을 때 이전 화면으로 돌아가는 로직을 추가
-<<<<<<< HEAD
+
                 playmedia.stopAlarm();
-=======
-                playmedia.stopMusic();
->>>>>>> 5d9da813ce299e1596afbea645f63d3641d18c07
+
                 finish();
             }
         });

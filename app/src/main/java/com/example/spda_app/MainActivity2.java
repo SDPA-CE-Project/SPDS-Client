@@ -20,7 +20,7 @@ public class MainActivity2 extends AppCompatActivity {
         binding.start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity2.this, OndeviceActivity.class);
+                Intent intent = new Intent(MainActivity2.this, FacedetectActivity.class);
                 startActivity(intent);
             }
         });
@@ -41,8 +41,8 @@ public class MainActivity2 extends AppCompatActivity {
         binding.exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
-                System.exit(0);
+                //finish();
+                System.exit(1);
             }
         });
     }

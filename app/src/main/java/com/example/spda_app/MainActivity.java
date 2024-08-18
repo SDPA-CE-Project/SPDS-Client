@@ -17,6 +17,7 @@ import android.content.SharedPreferences;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityLogin2Binding binding;
+    //private ActivityMainBinding mainBinding;
 
     private BannerAdapter adapter;
     private int[] images = {R.drawable.image1, R.drawable.image2, R.drawable.image3};
@@ -46,20 +47,21 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityLogin2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
         binding.login.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
         });
-        binding.btnSkipDemo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, OndeviceActivity.class);
-                startActivity(intent);
-            }
-        });
+//        mainBinding.btnSkipDemo.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(MainActivity.this, OndeviceActivity.class);
+//                startActivity(intent);
+//            }
+//        });
     }
 }

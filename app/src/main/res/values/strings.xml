@@ -35,4 +35,8 @@
     <string name="closeTime">Close: %1$f</string>
     <string name="closeAvg">CAvg: %1$f</string>
     <string name="ms">%1$d ms</string>
+    <string name="startDetect">졸음감지 시작</string>
+    <string name="setting">설정</string>
+    <string name="profile">프로필</string>
+    <string name="title_activity_face_detect_test">FaceDetectTestActivity</string>
 </resources>
