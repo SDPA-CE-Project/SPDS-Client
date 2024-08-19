@@ -1,5 +1,6 @@
 package com.example.spda_app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -22,7 +23,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spda_app.DAO.DBManager;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -31,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +46,6 @@ import java.util.regex.Pattern;
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG = "RegisterActivity";
     public static final int sub = 1002;
-    private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private Button btnChkMail, btnRegister;
     private EditText makeEmail, makePasswd, makePasswdAgain;
@@ -51,7 +54,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        mAuth = FirebaseAuth.getInstance();
+        //mAuth = FirebaseAuth.getInstance();
         btnChkMail = findViewById(R.id.btnChkMail);
         btnRegister = findViewById(R.id.btnRegister);
         makeEmail = findViewById(R.id.makeEmail);
@@ -78,7 +81,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        // FirebaseUser currentUser = mAuth.getCurrentUser();
         btnRegister.setEnabled(false);
     }
 
@@ -96,6 +99,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             if(validateInputs(makeemail, makepasswd, makepasswd2)) {
                 //if(makepasswd == makepasswd2) {
                 createAccount(makeemail, makepasswd);
+                updateUI(DBManager.GetInstance().fUser);
             }
         }
     }
@@ -151,26 +155,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
     private void createAccount(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            Toast.makeText(RegisterActivity.this, "Create successes.",
-                                    Toast.LENGTH_SHORT).show();
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(RegisterActivity.this, "Authentication failed."+task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    }
-                });
+
+        DBManager.GetInstance().createAccount(email, password);
 
     }
     private void updateUI(FirebaseUser user) {
@@ -196,7 +182,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             Log.d(TAG, "Invalid email format: " + email);
             return;
         }
-        mAuth.fetchSignInMethodsForEmail(email).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+        DBManager.GetInstance().mAuth.fetchSignInMethodsForEmail(email).addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
             @Override
             public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
                 if(task.isSuccessful())

@@ -26,7 +26,6 @@ public class CreateAccount {
 
     public CreateAccount() {
         mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         fDatabase = FirebaseFirestore.getInstance();
 
     }
@@ -43,7 +42,6 @@ public class CreateAccount {
         useraccount.setUserId(userId);
         useraccount.setEmailId(email);
         useraccount.setPassword(password);
-        // mDatabase.child("users").child(userId).setValue(useraccount);
 
 
         // Firestore에 저장
@@ -57,6 +55,4 @@ public class CreateAccount {
                     Log.w(TAG, "Error writing user data to Firestore", e);
                 });
     }
-
-
 }

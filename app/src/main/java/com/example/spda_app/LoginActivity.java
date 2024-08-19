@@ -19,21 +19,31 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener{
 
     private static final String TAG = "LoginActivity";
     public static final int sub = 1001;
     private FirebaseAuth mAuth;
-    private Button btnSign;
+
+    private FirebaseFirestore fdatabase;
+    private Button btnSign, button2;
     private EditText edtEmail, edtPasswd;
     private TextView registerQuestion, resetQuestion;
     private CheckBox chkMailBox;
     private SharedPreferences appData;
+
+
     // 사용자 정보 저장
 
     @Override
@@ -47,6 +57,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         chkMailBox = findViewById(R.id.chkMailBox);
         registerQuestion = findViewById(R.id.registerQuestion);
         resetQuestion = findViewById(R.id.resetQuestion);
+        button2 = findViewById(R.id.button2);
 
 
         btnSign.setOnClickListener(this);
@@ -55,6 +66,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         resetQuestion.setOnTouchListener(this);
         resetQuestion.setOnClickListener(this);
 
+        fdatabase = FirebaseFirestore.getInstance();
 
 
         appData = getSharedPreferences("appData", MODE_PRIVATE);
@@ -66,6 +78,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseFirestore fdatabase = FirebaseFirestore.getInstance();
     }
 
     @Override
@@ -86,6 +99,34 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
         else if (id == R.id.resetQuestion) {
             showResetDialog();
+        }
+        else if (id == R.id.button2) {
+            // mAuth = FirebaseAuth.getInstance();
+            fdatabase = FirebaseFirestore.getInstance();
+
+            String test_uid = "A1B2C3D4E5";
+
+            Map<String, Object> user = new HashMap<>();
+            user.put("userEmail", "testuser@example.com");
+            user.put("userId", "123456789");
+            user.put("userPasswd", "testpassword");
+
+            fdatabase.collection("users").document(test_uid)
+                    .set(user)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                        }
+                    });
+
+
         }
     }
 
@@ -120,6 +161,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
             return true;
         }
+
         return false;
     }
 

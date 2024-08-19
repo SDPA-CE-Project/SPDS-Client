@@ -8,8 +8,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.spda_app.LoginActivity;
+import com.example.spda_app.RegisterActivity;
 import com.example.spda_app.UserAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,27 +23,30 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DBManager {
 
     private static DBManager instance;
 
-
-
     private static final String TAG = "DBManager";
-
     public UserAccount accountInfo;
-    private FirebaseAuth mAuth;
+    public FirebaseAuth mAuth;
 
-    private FirebaseFirestore fDatabase;
+    public FirebaseUser fUser;
+    public FirebaseFirestore fDatabase;
+
 
 
     public DBManager() {
         accountInfo = new UserAccount();
         mAuth = FirebaseAuth.getInstance();
         fDatabase = FirebaseFirestore.getInstance();
+        fUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
-    private static DBManager GetInstance()
+    public static DBManager GetInstance()
     {
         if(instance == null)
             instance = new DBManager();
@@ -88,11 +94,48 @@ public class DBManager {
         }
     }
 
-    public void createAccount(String email, String password, OnCompleteListener<AuthResult> listener) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(listener);
-    }
+    public void createAccount(String email, String password) {
 
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            DBManager.GetInstance().fUser = task.getResult().getUser();
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+                            if (DBManager.GetInstance().fUser != null) {
+                                String uid = DBManager.GetInstance().fUser.getUid();
+                                // UID를 사용할 수 있습니다.
+                                Log.d("FirebaseAuth", "User UID: " + uid);
+
+                                Map<String, Object> user = new HashMap<>();
+                                user.put("userEmail", email);
+                                user.put("userId", uid);
+                                user.put("userPasswd", password);
+
+                                DBManager.GetInstance().fDatabase.collection("users").document(uid)
+                                        .set(user)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w(TAG, "Error writing document", e);
+                                            }
+                                        });
+                            }
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                        }
+                    }
+                });
+    }
     public void saveUserToDatabase(FirebaseUser user, String email, String password) {
 
 
@@ -119,8 +162,6 @@ public class DBManager {
     }
 
     private void updatePasswd(String newPasswd) {
-
-
 
 /*        fDatabase.child("users").child(userId).child("password").setValue(newPasswd)
                 .addOnCompleteListener(task -> {
