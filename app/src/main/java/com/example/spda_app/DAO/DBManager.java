@@ -94,7 +94,7 @@ public class DBManager {
         }
     }
 
-    public void createAccount(String email, String password) {
+    public void createAccount(String email, String password, CreateAccountCallback callback) {
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener( new OnCompleteListener<AuthResult>() {
@@ -116,26 +116,24 @@ public class DBManager {
 
                                 DBManager.GetInstance().fDatabase.collection("users").document(uid)
                                         .set(user)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d(TAG, "DocumentSnapshot successfully written!");
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w(TAG, "Error writing document", e);
-                                            }
-                                        });
+
+                                        .addOnSuccessListener(aVoid-> callback.onResult(1)) // success == 1
+                                        .addOnFailureListener(e -> callback.onResult(0)); // failure == 0
                             }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            callback.onResult(0); // 실패 시 0 반환
                         }
                     }
                 });
     }
+
+    // Create Callback Interface
+    public interface CreateAccountCallback {
+        void onResult(int result);
+    }
+
     public void saveUserToDatabase(FirebaseUser user, String email, String password) {
 
 

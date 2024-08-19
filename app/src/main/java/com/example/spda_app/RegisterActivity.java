@@ -99,7 +99,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             if(validateInputs(makeemail, makepasswd, makepasswd2)) {
                 //if(makepasswd == makepasswd2) {
                 createAccount(makeemail, makepasswd);
-                updateUI(DBManager.GetInstance().fUser);
             }
         }
     }
@@ -156,8 +155,18 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
     private void createAccount(String email, String password) {
 
-        DBManager.GetInstance().createAccount(email, password);
-
+        DBManager.GetInstance().createAccount(email, password, new DBManager.CreateAccountCallback() {
+            @Override
+            public void onResult(int result) {
+                if (result == 1) {
+                    Log.d(TAG, "(Success == 1) make User Account ");
+                    updateUI(DBManager.GetInstance().fUser);
+                } else {
+                    Log.d(TAG, "(failure == 0) Can't make User Account ");
+                    Toast.makeText(RegisterActivity.this, "회원가입에 실패했습니다.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
     private void updateUI(FirebaseUser user) {
         if (user == null) {
