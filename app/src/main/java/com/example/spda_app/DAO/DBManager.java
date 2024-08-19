@@ -28,7 +28,7 @@ public class DBManager {
 
     private static final String TAG = "DBManager";
 
-    private UserAccount accountInfo;
+    public UserAccount accountInfo;
     private FirebaseAuth mAuth;
 
     private FirebaseFirestore fDatabase;
@@ -91,7 +91,6 @@ public class DBManager {
     public void createAccount(String email, String password, OnCompleteListener<AuthResult> listener) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(listener);
-
     }
 
     public void saveUserToDatabase(FirebaseUser user, String email, String password) {
