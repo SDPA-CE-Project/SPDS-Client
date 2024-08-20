@@ -18,6 +18,7 @@ import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spda_app.DAO.DBManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,7 +38,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private FirebaseAuth mAuth;
 
     private FirebaseFirestore fdatabase;
-    private Button btnSign, button2;
+    private Button btnSign;
     private EditText edtEmail, edtPasswd;
     private TextView registerQuestion, resetQuestion;
     private CheckBox chkMailBox;
@@ -57,7 +58,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         chkMailBox = findViewById(R.id.chkMailBox);
         registerQuestion = findViewById(R.id.registerQuestion);
         resetQuestion = findViewById(R.id.resetQuestion);
-        button2 = findViewById(R.id.button2);
 
 
         btnSign.setOnClickListener(this);
@@ -99,34 +99,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
         else if (id == R.id.resetQuestion) {
             showResetDialog();
-        }
-        else if (id == R.id.button2) {
-            // mAuth = FirebaseAuth.getInstance();
-            fdatabase = FirebaseFirestore.getInstance();
-
-            String test_uid = "A1B2C3D4E5";
-
-            Map<String, Object> user = new HashMap<>();
-            user.put("userEmail", "testuser@example.com");
-            user.put("userId", "123456789");
-            user.put("userPasswd", "testpassword");
-
-            fdatabase.collection("users").document(test_uid)
-                    .set(user)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
-
-
         }
     }
 
@@ -291,7 +263,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Log.d(TAG, "signInWithEmail:success");
                     Toast.makeText(LoginActivity.this, "SignIn successes.",
                             Toast.LENGTH_SHORT).show();
-                    FirebaseUser user = mAuth.getCurrentUser();
+                    DBManager.GetInstance().fUser = mAuth.getCurrentUser();
                     edtEmail.setText("");
                     edtPasswd.setText("");
                     Intent intent = new Intent(LoginActivity.this, MainActivity2.class);
