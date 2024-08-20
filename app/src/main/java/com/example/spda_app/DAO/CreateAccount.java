@@ -40,7 +40,7 @@ public class CreateAccount {
         String userId = user.getUid();
         UserAccount useraccount = new UserAccount();
         useraccount.setUserId(userId);
-        useraccount.setEmailId(email);
+        useraccount.setEmail(email);
         useraccount.setPassword(password);
 
 

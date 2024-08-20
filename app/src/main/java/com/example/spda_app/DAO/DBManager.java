@@ -1,5 +1,8 @@
 package com.example.spda_app.DAO;
 
+import static com.pedro.rtsp.utils.ExtensionsKt.getData;
+import static java.security.AccessController.getContext;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -18,6 +21,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -129,6 +135,36 @@ public class DBManager {
                 });
     }
 
+    public void loadUserDataDB() {
+        String uid = fUser.getUid();
+        DocumentReference docRef = fDatabase.collection("users").document(uid);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        accountInfo.setEmail(document.get("userEmail").toString());
+                        accountInfo.setPassword(document.get("userPasswd").toString());
+                        accountInfo.setUserId(document.get("userId").toString());
+                        accountInfo.setTestdata(document.get("testdata").toString());
+
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+
+    }
+
+    public void updateUserDataDB() {
+
+    }
+
     // Create Callback Interface
     public interface CreateAccountCallback {
         void onResult(int result);
@@ -140,7 +176,7 @@ public class DBManager {
         String userId = user.getUid();
         UserAccount useraccount = new UserAccount();
         useraccount.setUserId(userId);
-        useraccount.setEmailId(email);
+        useraccount.setEmail(email);
         useraccount.setPassword(password);
 
 

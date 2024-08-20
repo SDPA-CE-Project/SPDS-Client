@@ -247,6 +247,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     DBManager.GetInstance().fUser = DBManager.GetInstance().mAuth.getCurrentUser();
                     edtEmail.setText("");
                     edtPasswd.setText("");
+                    DBManager.GetInstance().loadUserDataDB();
                     Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
                     startActivity(intent);
                 } else {
