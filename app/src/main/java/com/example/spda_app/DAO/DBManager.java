@@ -162,7 +162,23 @@ public class DBManager {
     }
 
     public void updateUserDataDB() {
+        String uid = fUser.getUid();
+        DocumentReference docRef = fDatabase.collection("users").document(uid);
 
+        docRef
+                .update("testdata", accountInfo.getTestdata())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error updating document", e);
+                    }
+                });
     }
 
     // Create Callback Interface
