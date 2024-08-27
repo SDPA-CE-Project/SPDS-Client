@@ -207,4 +207,27 @@
         app:layout_constraintStart_toStartOf="@+id/vw_Preview"
         app:layout_constraintTop_toBottomOf="@+id/imgview" />
 
+    <LinearLayout
+        android:id="@+id/NotFoundPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="63dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/faceFoundText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="사용자의 얼굴이 감지되고 있지 않습니다."
+            android:textColor="#000000"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

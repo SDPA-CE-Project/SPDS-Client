@@ -61,10 +61,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,7 +95,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private ArrayList<Entry> eyesChartDataList, nodChartDataList, totalChartDataList;
     private LineDataSet eyesLineDataSet, nodLineDataSet,totalChartDataSet;
 
+    private LinearLayout notFoundPanel;
+    private float faceFoundCountDown;
 
+    private boolean faceDetected;
+    private TextView faceFoundText;
+    private Handler CDhandler = new Handler();
+    private Runnable runnable;
+    private final int interval = 100; //0.1초
 
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
@@ -138,7 +147,6 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     BlinkCountThread blinkCountThread = new BlinkCountThread();
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
     PlayAlarmThread alarmThread = new PlayAlarmThread(this);
-
 
 
     private void ChartInit()
@@ -344,19 +352,20 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
         Intent intent = getIntent();
-
+        faceFoundCountDown = 3f;
         selectedItem1 = intent.getStringExtra("selectedItem1");
         selectedItem2 = intent.getStringExtra("selectedItem2");
         selectedItem3 = intent.getStringExtra("selectedItem3");
         txtLatency = findViewById(R.id.txtTimeCheck);
         btnLogout = findViewById(R.id.btnLogout);
-
+        faceFoundText = findViewById(R.id.faceFoundText);
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
         graphicOverlay = findViewById(R.id.vw_overlay);
@@ -368,7 +377,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         txtBlinkCount = findViewById(R.id.txtBlinkCount);
         txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
-
+        notFoundPanel = findViewById(R.id.NotFoundPanel);
         txtNoseMouthRatio = findViewById(R.id.txtNMRatio);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
@@ -405,10 +414,8 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         if (allPermissionsGranted()) {
             startDetect();
-            blinkCountThread.start();
-            detectDrowzThread.start();
-            blinkCountThread.setThread();
-            detectDrowzThread.setThread();
+            AfterCheckFace();
+            SetTimer();
 
         } else {
             ActivityCompat.requestPermissions(
@@ -432,6 +439,46 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+    }
+
+    void AfterCheckFace()
+    {
+        blinkCountThread.start();
+        detectDrowzThread.start();
+        blinkCountThread.setThread();
+        detectDrowzThread.setThread();
+    }
+
+    void SetTimer()
+    {
+        runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+
+                if(faceFoundCountDown <= 0)
+                {
+                    notFoundPanel.setVisibility(View.GONE);
+                }
+                else if (faceFoundCountDown == 3)
+                {
+                    faceFoundText.setText("사용자의 얼굴이 감지되고 있지 않습니다.");
+                    notFoundPanel.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    faceFoundText.setText("사용자의 얼굴이 감지되고 있습니다.("+ String.format("%.1f", faceFoundCountDown) +")");
+                    notFoundPanel.setVisibility(View.VISIBLE);
+                }
+                if(faceDetected)
+                    faceFoundCountDown -= 0.1f;
+                CDhandler.postDelayed(this, interval);
+            }
+        };
+
+        // 첫 실행 예약
+        CDhandler.post(runnable);
     }
     public void onClick(View view){
         mAuth.signOut();
@@ -460,11 +507,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                 new MlKitAnalyzer(List.of(faceDetector), 1, ContextCompat.getMainExecutor(this), result -> {
                     List<Face> faceResult = result.getValue(faceDetector);
                     if (faceResult == null || faceResult.isEmpty()) {
+                        faceDetected = false;
+                        faceFoundCountDown = 3f;
                         previewView.getOverlay().clear();
                         graphicOverlay.clear();
                         sleepCount = 0;
 
                     } else {
+                        faceDetected = true;
                         Bitmap fullImage = previewView.getBitmap();
                         Metadata metadata = new Metadata(faceResult.get(0));
                         DrawOverlay drawOverlay = new DrawOverlay(metadata);
@@ -831,6 +881,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        CDhandler.removeCallbacks(runnable);
         cameraExecutor.shutdown();
         faceDetector.close();
         blinkCountThread.stopThread();
