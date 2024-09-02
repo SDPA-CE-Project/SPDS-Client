@@ -316,7 +316,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             txtBlinkCount.setVisibility(View.GONE);
             txtBlinkAvg.setVisibility(View.GONE);
             txtCloseTimeAvg.setVisibility(View.GONE);
-            txtAlarmLevel.setVisibility(View.GONE);
+            //txtAlarmLevel.setVisibility(View.GONE);
             txtNoseMouthRatio.setVisibility(View.GONE);
             graphicOverlay.setVisibility(View.GONE);
 
@@ -602,6 +602,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         private int blinkInterval = 0;
         AtomicBoolean blinkCheck = new AtomicBoolean(false);
         private float avg = 0;
+
         public void setThread() {
             running = true;
         }
@@ -634,18 +635,15 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                 //updateChart();
                 headAngleDetect();
 
-
-
-
                 if (avg < 0.3f && sleepCount < 500) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
-                    sleepCount += 2;
+                    sleepCount += 5;
                     if(!blinkCheck.get()) {
                         blinkCheck.set(true);
                         blinkCountThread.recordCount();
                     }
                 }
                 else if (avg < 0.6f && sleepCount < 500) { //눈 0.6 미만 sleepCount 증가
-                    sleepCount += 1;
+                    sleepCount += 3;
                 }
                 else if (avg >= 0.7f) { // 눈 0.7 이상 눈 뜸 확인, 깜빡임 증가, 감은 시간 평균, sleepCount 초기화
                     blinkCheck.set(false);
