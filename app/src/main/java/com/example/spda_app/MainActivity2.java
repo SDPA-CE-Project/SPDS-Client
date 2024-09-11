@@ -20,7 +20,7 @@ public class MainActivity2 extends AppCompatActivity {
         binding.start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity2.this, FacedetectActivity.class);
+                Intent intent = new Intent(MainActivity2.this, OndeviceActivity.class);
                 startActivity(intent);
             }
         });

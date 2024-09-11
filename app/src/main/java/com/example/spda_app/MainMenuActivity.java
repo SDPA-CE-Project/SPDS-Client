@@ -21,6 +21,8 @@ public class MainMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+
+
             }
         });
         binding.btnProfile.setOnClickListener(new View.OnClickListener() {

@@ -27,8 +27,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.auth.User;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,7 +151,7 @@ public class DBManager {
                         accountInfo.setEmail(document.get("userEmail").toString());
                         accountInfo.setPassword(document.get("userPasswd").toString());
                         accountInfo.setUserId(document.get("userId").toString());
-                        accountInfo.setTestdata(document.get("testdata").toString());
+//                        accountInfo.setTestdata(document.get("testdata").toString());
 
                     } else {
                         Log.d(TAG, "No such document");
@@ -227,6 +230,21 @@ public class DBManager {
 
     }
 
+    public void AddAlarmHistory(int alarmLevel)
+    {
+        Log.w("history","History called");
+        Map<String,Object> historyData = new HashMap<>();
+        historyData.put(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), alarmLevel);
 
+        String uid = fUser.getUid();
+        DocumentReference docRef = fDatabase.collection("history").document(uid);
+        docRef.set(historyData, SetOptions.merge())
+                .addOnFailureListener(e -> {Log.w("Firestore", "Error writing document", e);})
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "DocumentSnapshot successfully written!");
+                });
+
+
+    }
 
 }

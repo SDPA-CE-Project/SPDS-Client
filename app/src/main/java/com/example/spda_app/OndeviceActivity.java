@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
+import com.example.spda_app.DAO.DBManager;
 import com.example.spda_app.DAO.DeleteAccount;
 import com.example.spda_app.face_detect.DrawLandmarkGraphic;
 import com.example.spda_app.face_detect.DrawOverlay;
@@ -144,6 +145,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
     private FirebaseAuth mAuth;
+    private int recentLevel = 0;
 
     //BackgroundTreadTime threadTime = new BackgroundTreadTime();
 
@@ -752,8 +754,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         int timeCount = blinkCountThread.getBlinkRunCount();
         if(GetTotalSleepCount() > 450){
+
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
+            if(recentLevel != 3)
+            {
+                DBManager.GetInstance().AddAlarmHistory(3);
+                recentLevel = 3;
+            }
 
             playSong.playAlarm();
             playMedia.stopAlarm();
@@ -761,25 +769,42 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         }
         else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 300) {
+
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
-
+            if(recentLevel != 2)
+            {
+                DBManager.GetInstance().AddAlarmHistory(2);
+                recentLevel = 2;
+            }
             playSong.playAlarm();
             playMedia.stopAlarm();
             playVibrate.stopAlarm();
 
         }
         else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 150) {
+
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
+            if(recentLevel != 1)
+            {
+                DBManager.GetInstance().AddAlarmHistory(1);
+                recentLevel = 1;
+            }
             playSong.playAlarm();
             playMedia.stopAlarm();
             playVibrate.stopAlarm();
 
         }
         else {
+
             //대기 단계
             txtAlarmLevel.setText(getString(R.string.standby));
+            if(recentLevel != 0)
+            {
+                DBManager.GetInstance().AddAlarmHistory(0);
+            }
+            recentLevel = 0;
             playMedia.stopAlarm();
             playSong.stopAlarm();
             playVibrate.stopAlarm();

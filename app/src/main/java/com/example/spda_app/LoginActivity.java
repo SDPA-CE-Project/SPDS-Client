@@ -248,7 +248,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     edtEmail.setText("");
                     edtPasswd.setText("");
                     DBManager.GetInstance().loadUserDataDB();
-                    Intent intent = new Intent(LoginActivity.this, MainMenuActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, MainActivity2.class);
                     startActivity(intent);
                 } else {
                     // If sign in fails, display a message to the user.
