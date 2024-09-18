@@ -15,7 +15,6 @@ import com.google.firebase.FirebaseApp;
 import android.content.SharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
-
     private ActivityLogin2Binding binding;
     //private ActivityMainBinding mainBinding;
 
@@ -46,9 +45,11 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityLogin2Binding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-
-        binding.login.setOnClickListener(new View.OnClickListener() {
+        
+        // LoginActivity에서 오류발생
+        // Id 이름이 바뀜으로써 코드가 수정됨
+        // 추후 binding 문제 해결 요망
+        binding.btnLogin.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
