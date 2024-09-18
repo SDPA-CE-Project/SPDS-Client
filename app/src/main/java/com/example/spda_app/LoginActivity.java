@@ -18,60 +18,71 @@ import android.graphics.Color;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spda_app.DAO.DBManager;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, View.OnTouchListener{
 
     private static final String TAG = "LoginActivity";
     public static final int sub = 1001;
-    private FirebaseAuth mAuth;
-    private Button btnSign;
+    private Button btnLogin, btnSign;
     private EditText edtEmail, edtPasswd;
-    private TextView registerQuestion, resetQuestion;
-    private CheckBox chkMailBox;
+    private TextView resetQuestion;
     private SharedPreferences appData;
+
+
     // 사용자 정보 저장
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        mAuth = FirebaseAuth.getInstance();
+        setContentView(R.layout.activity_login2);
+        btnLogin = findViewById(R.id.btnLogin);
         btnSign = findViewById(R.id.btnSign);
-        edtEmail = findViewById(R.id.edtMail);
+        edtEmail = findViewById(R.id.edtEmail);
         edtPasswd = findViewById(R.id.edtPasswd);
-        chkMailBox = findViewById(R.id.chkMailBox);
-        registerQuestion = findViewById(R.id.registerQuestion);
         resetQuestion = findViewById(R.id.resetQuestion);
 
+        btnLogin.setOnClickListener(this);
+        btnSign.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                gotoRegi();
+                Log.d(TAG,"onClick 성공");
+            }
 
-        btnSign.setOnClickListener(this);
-        registerQuestion.setOnTouchListener(this);
-        registerQuestion.setOnClickListener(this);
-        resetQuestion.setOnTouchListener(this);
+        });
         resetQuestion.setOnClickListener(this);
 
+
+        resetQuestion.setOnTouchListener(this);
 
 
         appData = getSharedPreferences("appData", MODE_PRIVATE);
         // UI 설정 정보 불러오기
-        loadInfo();
+        //loadInfo();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
     @Override
     public void onClick(View view) {
+        Log.d(TAG, "일단 뭔가 눌러지고 있음");
         int id = view.getId();
-        if (id == R.id.btnSign) {
+        if (id == R.id.btnLogin) {
             String email = edtEmail.getText().toString().trim();
             String passwd = edtPasswd.getText().toString().trim();
             if (!email.isEmpty() && !passwd.isEmpty()) {
@@ -81,8 +92,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 Toast.makeText(this,"Enter your Email and Password", Toast.LENGTH_SHORT).show();
                 Log.d(TAG,"Empty Email or Password");
             }
-        } else if (id == R.id.registerQuestion) {
-            gotoRegi();
         }
         else if (id == R.id.resetQuestion) {
             showResetDialog();
@@ -93,21 +102,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public boolean onTouch(View view, MotionEvent event){
 
         int id = view.getId();
-        if (id == R.id.registerQuestion) {
-            switch(event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    registerQuestion.setTextColor(Color.parseColor("#8B2991"));
-                    gotoRegi();
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    registerQuestion.setTextColor(Color.BLACK);
-                    break;
-            }
-            return true;
-        }
-
-        else if (id == R.id.resetQuestion) {
+        if (id == R.id.resetQuestion) {
             switch(event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     resetQuestion.setTextColor(Color.parseColor("#8B2991"));
@@ -120,6 +115,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
             return true;
         }
+
         return false;
     }
 
@@ -176,9 +172,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void resetPasswd(String email, Dialog dialog) {
-        mAuth = FirebaseAuth.getInstance();
         // 해당 이메일로 재설정 이메일 전송
-        mAuth.sendPasswordResetEmail(email)
+        DBManager.GetInstance().mAuth.sendPasswordResetEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> resetTask) {
@@ -240,7 +235,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void getLogin(){
         String email = edtEmail.getText().toString().trim();
         String passwd = edtPasswd.getText().toString().trim();
-        mAuth.signInWithEmailAndPassword(email, passwd).addOnCompleteListener(LoginActivity.this,
+        DBManager.GetInstance().mAuth.signInWithEmailAndPassword(email, passwd).addOnCompleteListener(LoginActivity.this,
                 new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -249,9 +244,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Log.d(TAG, "signInWithEmail:success");
                     Toast.makeText(LoginActivity.this, "SignIn successes.",
                             Toast.LENGTH_SHORT).show();
-                    FirebaseUser user = mAuth.getCurrentUser();
+                    DBManager.GetInstance().fUser = DBManager.GetInstance().mAuth.getCurrentUser();
                     edtEmail.setText("");
                     edtPasswd.setText("");
+                    DBManager.GetInstance().loadUserDataDB();
                     Intent intent = new Intent(LoginActivity.this, MainActivity2.class);
                     startActivity(intent);
                 } else {
@@ -263,20 +259,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             }
         });
-        saveInfo();
     }
 
-    private void saveInfo() {
-        // Editor를 활용한 객체 저장
-        SharedPreferences.Editor editor = appData.edit();
 
-        editor.putBoolean("SAVE_LOGIN_DATA", chkMailBox.isChecked());
-        editor.putString("ID", edtEmail.getText().toString().trim());
-
-        // apply, commit 을 안하면 변경된 내용이 저장되지 않음
-        editor.apply();
-
-    }
 
     private void loadInfo(){
         // saveInfo 값 불러오기
@@ -284,7 +269,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String id = appData.getString("ID", "");
 
         // 불러온 값을 UI에 설정
-        chkMailBox.setChecked(saveInfoData);
         edtEmail.setText(id);
     }
 

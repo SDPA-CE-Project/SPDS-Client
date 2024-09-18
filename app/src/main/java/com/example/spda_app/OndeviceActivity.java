@@ -23,6 +23,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
+import com.example.spda_app.DAO.DBManager;
+import com.example.spda_app.DAO.DeleteAccount;
 import com.example.spda_app.face_detect.DrawLandmarkGraphic;
 import com.example.spda_app.face_detect.DrawOverlay;
 import com.example.spda_app.face_detect.GraphicOverlay;
@@ -33,6 +35,8 @@ import com.example.spda_app.threads.PlayAlarmThread;
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.data.CombinedData;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.face.Face;
 import com.google.mlkit.vision.face.FaceDetection;
@@ -61,10 +65,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,7 +99,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private ArrayList<Entry> eyesChartDataList, nodChartDataList, totalChartDataList;
     private LineDataSet eyesLineDataSet, nodLineDataSet,totalChartDataSet;
 
+    private LinearLayout notFoundPanel;
+    private float faceFoundCountDown;
 
+    private boolean faceDetected;
+    private TextView faceFoundText;
+    private Handler CDhandler = new Handler();
+    private Runnable runnable;
+    private final int interval = 100; //0.1초
 
     private static final String TAG = "onDeviceTest";
     private static final int REQUEST_CODE_PERMISSIONS = 10;
@@ -132,13 +145,13 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     private int blinkCountPer10s = 0;
     private int blinkCount = 0;
     private FirebaseAuth mAuth;
+    private int recentLevel = 0;
 
     //BackgroundTreadTime threadTime = new BackgroundTreadTime();
 
     BlinkCountThread blinkCountThread = new BlinkCountThread();
     DetectDrowzThread detectDrowzThread = new DetectDrowzThread();
     PlayAlarmThread alarmThread = new PlayAlarmThread(this);
-
 
 
     private void ChartInit()
@@ -316,7 +329,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             txtBlinkCount.setVisibility(View.GONE);
             txtBlinkAvg.setVisibility(View.GONE);
             txtCloseTimeAvg.setVisibility(View.GONE);
-            txtAlarmLevel.setVisibility(View.GONE);
+            //txtAlarmLevel.setVisibility(View.GONE);
             txtNoseMouthRatio.setVisibility(View.GONE);
             graphicOverlay.setVisibility(View.GONE);
 
@@ -344,19 +357,20 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ondevice);
         Intent intent = getIntent();
-
+        faceFoundCountDown = 3f;
         selectedItem1 = intent.getStringExtra("selectedItem1");
         selectedItem2 = intent.getStringExtra("selectedItem2");
         selectedItem3 = intent.getStringExtra("selectedItem3");
         txtLatency = findViewById(R.id.txtTimeCheck);
         btnLogout = findViewById(R.id.btnLogout);
-
+        faceFoundText = findViewById(R.id.faceFoundText);
         previewView = findViewById(R.id.vw_Preview);
         imgView = findViewById(R.id.imgview);
         graphicOverlay = findViewById(R.id.vw_overlay);
@@ -368,7 +382,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         txtBlinkCount = findViewById(R.id.txtBlinkCount);
         txtBlinkAvg = findViewById(R.id.txtBlinkAvg);
         txtCloseTimeAvg = findViewById(R.id.txtCloseTimeAvg);
-
+        notFoundPanel = findViewById(R.id.NotFoundPanel);
         txtNoseMouthRatio = findViewById(R.id.txtNMRatio);
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         txtAlarmLevel = findViewById(R.id.txtDrozeWarn);
@@ -405,10 +419,8 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         if (allPermissionsGranted()) {
             startDetect();
-            blinkCountThread.start();
-            detectDrowzThread.start();
-            blinkCountThread.setThread();
-            detectDrowzThread.setThread();
+            AfterCheckFace();
+            SetTimer();
 
         } else {
             ActivityCompat.requestPermissions(
@@ -432,6 +444,74 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
+        /*
+        btnDeleteAccount.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                // 현재 로그인한 사용자의 이메일 얻기
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+                if (currentUser != null) {
+                    String email = currentUser.getEmail();
+
+                    DeleteAccount.deleteUserByEmail(email);
+
+                    currentUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                // 계정 삭제 후, 필요한 UI 업데이트 또는 리다이렉트
+                                Log.d("DeleteAccount", "User account deleted.");
+                            } else {
+                                Log.w("DeleteAccount", "Failed to delete user account.", task.getException());
+                            }
+                        }
+                    });
+                } else {
+                    Log.w("DeleteAccount", "No user is currently signed in.");
+                }
+            }
+        });
+        */
+    }
+
+    void AfterCheckFace()
+    {
+        blinkCountThread.start();
+        detectDrowzThread.start();
+        blinkCountThread.setThread();
+        detectDrowzThread.setThread();
+    }
+
+    void SetTimer()
+    {
+        runnable = new Runnable() {
+
+
+            @Override
+            public void run() {
+
+                if(faceFoundCountDown <= 0)
+                {
+                    notFoundPanel.setVisibility(View.GONE);
+                }
+                else if (faceFoundCountDown == 3)
+                {
+                    faceFoundText.setText("사용자의 얼굴이 감지되고 있지 않습니다.");
+                    notFoundPanel.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    faceFoundText.setText("사용자의 얼굴이 감지되고 있습니다.("+ String.format("%.1f", faceFoundCountDown) +")");
+                    notFoundPanel.setVisibility(View.VISIBLE);
+                }
+                if(faceDetected)
+                    faceFoundCountDown -= 0.1f;
+                CDhandler.postDelayed(this, interval);
+            }
+        };
+
+        // 첫 실행 예약
+        CDhandler.post(runnable);
     }
     public void onClick(View view){
         mAuth.signOut();
@@ -460,11 +540,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                 new MlKitAnalyzer(List.of(faceDetector), 1, ContextCompat.getMainExecutor(this), result -> {
                     List<Face> faceResult = result.getValue(faceDetector);
                     if (faceResult == null || faceResult.isEmpty()) {
+                        faceDetected = false;
+                        faceFoundCountDown = 3f;
                         previewView.getOverlay().clear();
                         graphicOverlay.clear();
                         sleepCount = 0;
 
                     } else {
+                        faceDetected = true;
                         Bitmap fullImage = previewView.getBitmap();
                         Metadata metadata = new Metadata(faceResult.get(0));
                         DrawOverlay drawOverlay = new DrawOverlay(metadata);
@@ -602,6 +685,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         private int blinkInterval = 0;
         AtomicBoolean blinkCheck = new AtomicBoolean(false);
         private float avg = 0;
+
         public void setThread() {
             running = true;
         }
@@ -634,18 +718,15 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                 //updateChart();
                 headAngleDetect();
 
-
-
-
                 if (avg < 0.3f && sleepCount < 500) { //눈 0.3 미만 sleepCount 증가, 눈 감음 확인
-                    sleepCount += 2;
+                    sleepCount += 5;
                     if(!blinkCheck.get()) {
                         blinkCheck.set(true);
                         blinkCountThread.recordCount();
                     }
                 }
                 else if (avg < 0.6f && sleepCount < 500) { //눈 0.6 미만 sleepCount 증가
-                    sleepCount += 1;
+                    sleepCount += 3;
                 }
                 else if (avg >= 0.7f) { // 눈 0.7 이상 눈 뜸 확인, 깜빡임 증가, 감은 시간 평균, sleepCount 초기화
                     blinkCheck.set(false);
@@ -671,8 +752,14 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         int timeCount = blinkCountThread.getBlinkRunCount();
         if(GetTotalSleepCount() > 450){
+
             //알람 3단계
             txtAlarmLevel.setText(getString(R.string.level_3));
+            if(recentLevel != 3)
+            {
+                DBManager.GetInstance().AddAlarmHistory(3);
+                recentLevel = 3;
+            }
 
             playSong.playAlarm();
             playMedia.stopAlarm();
@@ -680,25 +767,42 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
 
         }
         else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 300) {
+
             //알람 2단계
             txtAlarmLevel.setText(getString(R.string.level_2));
-
+            if(recentLevel != 2)
+            {
+                DBManager.GetInstance().AddAlarmHistory(2);
+                recentLevel = 2;
+            }
             playSong.playAlarm();
             playMedia.stopAlarm();
             playVibrate.stopAlarm();
 
         }
         else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 150) {
+
             //알람 1단계
             txtAlarmLevel.setText(getString(R.string.level_1));
+            if(recentLevel != 1)
+            {
+                DBManager.GetInstance().AddAlarmHistory(1);
+                recentLevel = 1;
+            }
             playSong.playAlarm();
             playMedia.stopAlarm();
             playVibrate.stopAlarm();
 
         }
         else {
+
             //대기 단계
             txtAlarmLevel.setText(getString(R.string.standby));
+            if(recentLevel != 0)
+            {
+                DBManager.GetInstance().AddAlarmHistory(0);
+            }
+            recentLevel = 0;
             playMedia.stopAlarm();
             playSong.stopAlarm();
             playVibrate.stopAlarm();
@@ -831,6 +935,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        CDhandler.removeCallbacks(runnable);
         cameraExecutor.shutdown();
         faceDetector.close();
         blinkCountThread.stopThread();
