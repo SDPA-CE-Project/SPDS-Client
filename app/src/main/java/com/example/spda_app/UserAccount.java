@@ -1,3 +1,4 @@
+
 package com.example.spda_app;
 
 public class UserAccount {
@@ -6,7 +7,15 @@ public class UserAccount {
     private String password;   // 비밀번호
     private String testdata;
 
+    private String Username;
+
     public UserAccount() {}
+    public UserAccount(String userID, String email, String password, String name) {
+        this.userId = userID;
+        this.email = email;
+        this.password = password;
+        this.Username = name;
+    }
     public UserAccount(String userID, String email, String password) {
         this.userId = userID;
         this.email = email;
@@ -22,6 +31,9 @@ public class UserAccount {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public void setUserName(String name) {this.Username = name;}
+    public String getUserName() {return this.Username;}
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password;  }

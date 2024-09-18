@@ -168,20 +168,28 @@ public class DBManager {
         String uid = fUser.getUid();
         DocumentReference docRef = fDatabase.collection("users").document(uid);
 
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("userName", accountInfo.getUserName());
+        updates.put("userEmail", accountInfo.getEmail());
+
+//        docRef
+//                .update("testdata", accountInfo.getTestdata())
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d(TAG, "DocumentSnapshot successfully updated!");
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.w(TAG, "Error updating document", e);
+//                    }
+//                });
         docRef
-                .update("testdata", accountInfo.getTestdata())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully updated!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error updating document", e);
-                    }
-                });
+                .update(updates)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully updated!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error updating document", e));
     }
 
     // Create Callback Interface
