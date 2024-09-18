@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CameraStreamActivity">
+
+    <SurfaceView
+        android:id="@+id/surfaceView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnSwitchCam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/switch_camera"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txtValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="0"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnRecord"
+        app:layout_constraintEnd_toStartOf="@+id/txtValue2"
+        app:layout_constraintStart_toEndOf="@+id/btnRecord"
+        app:layout_constraintTop_toTopOf="@+id/btnRecord" />
+
+    <TextView
+        android:id="@+id/txtValue2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="0"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSwitchCam"
+        app:layout_constraintEnd_toStartOf="@+id/btnSwitchCam"
+        app:layout_constraintStart_toEndOf="@+id/txtValue"
+        app:layout_constraintTop_toTopOf="@+id/btnSwitchCam" />
+
+    <TextView
+        android:id="@+id/txtAvg"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="2dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="0"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/txtValue"
+        app:layout_constraintEnd_toStartOf="@+id/btnSwitchCam"
+        app:layout_constraintStart_toEndOf="@+id/btnRecord" />
+
+    <TextView
+        android:id="@+id/txtUser"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/btnAuth"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btnAuth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/signin"
+        app:layout_constraintBottom_toBottomOf="@+id/txtUser"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtChkConnReq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#34FFFFFF"
+        android:text="@string/ConnectionResponse"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtChkConnRes" />
+
+    <TextView
+        android:id="@+id/txtChkConnRes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#34FFFFFF"
+        android:text="@string/ConnectionRequest"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtHash" />
+
+    <TextView
+        android:id="@+id/txtUid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#34FFFFFF"
+        android:text="@string/uid"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtUser" />
+
+    <TextView
+        android:id="@+id/txtHash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#34FFFFFF"
+        android:text="@string/hash"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtUid" />
+
+    <TextView
+        android:id="@+id/txtBitrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#34FFFFFF"
+        android:text="@string/bitrate"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtChkConnReq" />
+
+    <Button
+        android:id="@+id/btnDebug"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/debug"
+        app:layout_constraintBottom_toTopOf="@+id/btnSwitchCam"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btnSwitchCam" />
+
+    <TextView
+        android:id="@+id/txtSleepLevel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/txtAvg"
+        app:layout_constraintEnd_toEndOf="@+id/txtAvg"
+        app:layout_constraintStart_toStartOf="@+id/txtAvg" />
+
+    <TextView
+        android:id="@+id/txtSleepStat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#34FFFFFF"
+        android:text="@string/sleepStat"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtBitrate" />
+    <Button
+        android:id="@+id/btnOndevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/onDevice"
+        app:layout_constraintBottom_toTopOf="@+id/btnRecord"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="단계별 알람 설정"
+        android:textSize="30dp"
+        android:layout_marginTop="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1단계 알람설정"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="50dp" />
+    <Spinner
+        android:id="@+id/spinner1"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="0dp"
+        android:entries="@array/array1"
+        android:background="@drawable/spinner_custom"
+        android:layout_gravity="center"
+        android:textAlignment="center">
+    </Spinner>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2단계 알람설정"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="20dp" />
+    <Spinner
+        android:id="@+id/spinner2"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="0dp"
+        android:entries="@array/array2"
+        android:background="@drawable/spinner_custom"
+        android:layout_gravity="center"
+        android:textAlignment="center">
+    </Spinner>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3단계 알람설정"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="20dp" />
+    <Spinner
+        android:id="@+id/spinner3"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="0dp"
+        android:entries="@array/array3"
+        android:background="@drawable/spinner_custom"
+        android:layout_gravity="center"
+        android:textAlignment="center">
+    </Spinner>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="4단계 알람설정"
+        android:layout_marginLeft="65dp"
+        android:layout_marginTop="20dp" />
+    <Spinner
+        android:id="@+id/spinner4"
+        android:layout_width="280dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="0dp"
+        android:entries="@array/array4"
+        android:background="@drawable/spinner_custom"
+        android:layout_gravity="center"
+        android:textAlignment="center">
+    </Spinner>
+<!--    <Button-->
+<!--        android:id="@+id/abc"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="0"/>-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:text="다음으로" />
+    </LinearLayout>
+
+</LinearLayout>

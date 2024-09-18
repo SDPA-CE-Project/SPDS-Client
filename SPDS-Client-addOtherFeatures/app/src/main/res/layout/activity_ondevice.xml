@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OndeviceActivity">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/vw_Preview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+
+    </androidx.camera.view.PreviewView>
+
+    <ImageView
+        android:id="@+id/imgview"
+        android:layout_width="512px"
+        android:layout_height="512px"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_delete" />
+
+    <com.example.spda_app.face_detect.GraphicOverlay
+        android:id="@+id/vw_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/txtRightEAR"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtLeftEAR"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/txtRightEAR"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtAvgEAR"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtRightEAR"
+        app:layout_constraintStart_toStartOf="@+id/txtLeftEAR"
+        app:layout_constraintTop_toBottomOf="@+id/txtRightEAR" />
+
+    <TextView
+        android:id="@+id/txtMAR"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtAvgEAR"
+        app:layout_constraintStart_toStartOf="@+id/txtAvgEAR"
+        app:layout_constraintTop_toBottomOf="@+id/txtAvgEAR" />
+
+    <TextView
+        android:id="@+id/txtStatCount"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:text="@string/sleepStat"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/txtMAR"
+        app:layout_constraintStart_toStartOf="@+id/txtMAR"
+        app:layout_constraintTop_toBottomOf="@+id/txtMAR" />
+
+    <TextView
+        android:id="@+id/txtBlinkCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/blinkCount"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtStatCount" />
+
+    <TextView
+        android:id="@+id/txtBlinkAvg"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/blinkAvg"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtBlinkCount" />
+
+    <TextView
+        android:id="@+id/txtCloseTimeAvg"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/closeTime"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtBlinkAvg" />
+
+    <TextView
+        android:id="@+id/txtDrozeWarn"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/vw_Preview"
+        app:layout_constraintTop_toBottomOf="@+id/txtCloseTimeAvg" />
+
+    <TextView
+        android:id="@+id/txtNMRatio"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#FFFFFF"
+        android:gravity="center"
+        android:text="@string/standby"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDrozeWarn" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="32dp"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/totallineChart"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="32dp" />
+
+        <Button
+            android:id="@+id/debugingToggle"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"
+            android:text="Toggle Visibility" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/debugingToggle"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="5dp"
+            android:text="Logout" />
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/txtTimeCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:text="@string/ms"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="@+id/vw_Preview"
+        app:layout_constraintTop_toBottomOf="@+id/imgview" />
+
+    <LinearLayout
+        android:id="@+id/NotFoundPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="63dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/faceFoundText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="사용자의 얼굴이 감지되고 있지 않습니다."
+            android:textColor="#000000"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
