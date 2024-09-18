@@ -27,7 +27,7 @@ public class MainMenuActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_page);
+        setContentView(R.layout.activity_main_menu);
 
         start = findViewById(R.id.start);
         log = findViewById(R.id.log);
