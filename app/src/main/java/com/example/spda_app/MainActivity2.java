@@ -9,11 +9,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.spda_app.databinding.MainPageBinding;
 
 public class MainActivity2 extends AppCompatActivity {
-    private MainPageBinding binding;
+    //private MainPageBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*
         binding = MainPageBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -45,5 +46,7 @@ public class MainActivity2 extends AppCompatActivity {
                 System.exit(1);
             }
         });
+
+         */
     }
 }

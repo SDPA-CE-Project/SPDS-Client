@@ -23,6 +23,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.camera.mlkit.vision.MlKitAnalyzer;
 
+import com.example.spda_app.DAO.DBManager;
 import com.example.spda_app.DAO.DeleteAccount;
 import com.example.spda_app.face_detect.DrawLandmarkGraphic;
 import com.example.spda_app.face_detect.DrawOverlay;
@@ -432,6 +433,9 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onClick(View view) {
                 onClick(view);
+                DBManager.GetInstance().mAuth.signOut();
+                Intent intent = new Intent(OndeviceActivity.this, MainMenuActivity.class);
+                startActivity(intent);
             }
         });
 
