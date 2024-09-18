@@ -441,6 +441,9 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onClick(View view) {
                 onClick(view);
+                DBManager.GetInstance().mAuth.signOut();
+                Intent intent = new Intent(OndeviceActivity.this, MainMenuActivity.class);
+                startActivity(intent);
             }
         });
 
