@@ -37,12 +37,14 @@
             android:focusable="true"/>
     </FrameLayout>
     <TextView
+        android:id="@+id/name_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="사용자123"
         android:textSize="20dp"
         android:layout_gravity="center"/>
     <TextView
+        android:id="@+id/email_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="abcdefg@gmail.com"
@@ -61,6 +63,7 @@
             android:layout_height="wrap_content"
             android:text="UID"/>
         <TextView
+            android:id="@+id/uid_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="13301"
@@ -72,6 +75,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/name_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="50dp"
@@ -84,6 +88,7 @@
             android:layout_height="wrap_content"
             android:text="이름"/>
         <TextView
+            android:id="@+id/name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="사용자123"
@@ -95,6 +100,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/email_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="50dp"
@@ -107,6 +113,7 @@
             android:layout_height="wrap_content"
             android:text="이메일"/>
         <TextView
+            android:id="@+id/email_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="abcdefg@gmail.com"
@@ -118,6 +125,7 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/complete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="완료"

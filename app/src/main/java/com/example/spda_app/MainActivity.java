@@ -42,21 +42,25 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+        else {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
 
-        binding = ActivityLogin2Binding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+//        binding = ActivityLogin2Binding.inflate(getLayoutInflater());
+//        setContentView(binding.getRoot());
         
         // LoginActivity에서 오류발생
         // Id 이름이 바뀜으로써 코드가 수정됨
         // 추후 binding 문제 해결 요망
-        binding.btnLogin.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-            }
-        });
+//        binding.btnLogin.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//                startActivity(intent);
+//            }
+//        });
 //        mainBinding.btnSkipDemo.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spda_app.DAO.DBManager;
 import com.example.spda_app.databinding.SongSettingBinding;
 
 import java.io.IOException;
@@ -34,6 +35,9 @@ public class SongSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        selectedMP3Index = DBManager.GetInstance().accountInfo.getSongIndex();
+
         binding = SongSettingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -59,6 +63,7 @@ public class SongSettingActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // 클릭한 아이템의 인덱스 값을 selectedMP3Index에 저장
                 setSelectedMP3Index(position);
+                DBManager.GetInstance().accountInfo.setSongIndex(position);
                 binding.number.setText(String.valueOf(getSelectedMP3Index()));
                 if (playmedia.isPlaying()) {
 
@@ -79,7 +84,7 @@ public class SongSettingActivity extends AppCompatActivity {
                 // 확인 버튼을 클릭했을 때 이전 화면으로 돌아가는 로직을 추가
 
                 playmedia.stopAlarm();
-
+                DBManager.GetInstance().updateUserDataDB();
                 finish();
             }
         });

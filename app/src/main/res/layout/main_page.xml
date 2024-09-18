@@ -1,5 +1,6 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -128,21 +129,22 @@
                 android:layout_height="80dp"
                 android:gravity="center"
                 android:background="@drawable/button_background">
-                <ImageButton
-                    android:id="@+id/exit"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/exit"
-                    android:contentDescription="종료"/>
+                <ImageView
+                    android:id="@+id/logStatus"
+                    android:layout_width="60dp"
+                    android:layout_height="65dp"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/lock" />
             </LinearLayout>
 
             <TextView
+                android:id="@+id/log"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="종료"
-                android:textSize="16dp"
                 android:layout_marginTop="5dp"
-                android:gravity="center"/>
+                android:gravity="center"
+                android:text="로그 상태"
+                android:textSize="16dp"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
