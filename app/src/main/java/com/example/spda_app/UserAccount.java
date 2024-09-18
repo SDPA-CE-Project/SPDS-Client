@@ -9,17 +9,68 @@ public class UserAccount {
 
     private String Username;
 
+    public int getLevelIndex() {
+        return levelIndex;
+    }
+
+    public void setLevelIndex(int levelIndex) {
+        this.levelIndex = levelIndex;
+    }
+
+    private int levelIndex;
+
+    public int getVibrationIndex() {
+        return vibrationIndex;
+    }
+
+    public void setVibrationIndex(int vibrationIndex) {
+        this.vibrationIndex = vibrationIndex;
+    }
+
+    private int vibrationIndex;
+
+    public int getAlarmBellIndex() {
+        return alarmBellIndex;
+    }
+
+    public void setAlarmBellIndex(int alarmBellIndex) {
+        this.alarmBellIndex = alarmBellIndex;
+    }
+
+    private int alarmBellIndex;
+
+    public int getSongIndex() {
+        return songIndex;
+    }
+
+    public void setSongIndex(int songIndex) {
+        this.songIndex = songIndex;
+    }
+
+    private int songIndex;
+
+
     public UserAccount() {}
     public UserAccount(String userID, String email, String password, String name) {
         this.userId = userID;
         this.email = email;
         this.password = password;
         this.Username = name;
+
+        levelIndex = 0;
+        vibrationIndex= 0;
+        alarmBellIndex= 0;
+        songIndex= 0;
     }
     public UserAccount(String userID, String email, String password) {
         this.userId = userID;
         this.email = email;
         this.password = password;
+
+        levelIndex = 0;
+        vibrationIndex= 0;
+        alarmBellIndex= 0;
+        songIndex= 0;
     }
 
     public String getUserId() {

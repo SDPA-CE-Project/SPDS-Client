@@ -10,6 +10,7 @@ import android.widget.ListView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spda_app.DAO.DBManager;
 import com.example.spda_app.databinding.AlarmbellSettingBinding;
 
 import java.util.ArrayList;
@@ -24,10 +25,14 @@ public class AlarmbellSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        selectedIndex = DBManager.GetInstance().accountInfo.getAlarmBellIndex();
+
+
         binding = AlarmbellSettingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         binding.number.setText(String.valueOf(getSelectedIndex()));
+
 
         // 음악 리스트 초기화
         List = new ArrayList<>();
@@ -49,6 +54,7 @@ public class AlarmbellSettingActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // 클릭한 아이템의 인덱스 값을 selectedMP3Index에 저장
                 setSelectedIndex(position);
+                DBManager.GetInstance().accountInfo.setAlarmBellIndex(position);
                 binding.number.setText(String.valueOf(getSelectedIndex()));
                 if (playsong.isPlaying()) {
 
@@ -66,7 +72,7 @@ public class AlarmbellSettingActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 확인 버튼을 클릭했을 때 이전 화면으로 돌아가는 로직을 추가
                 playsong.stopAlarm();
-
+                DBManager.GetInstance().updateUserDataDB();
                 finish();
             }
         });

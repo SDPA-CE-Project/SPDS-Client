@@ -37,12 +37,14 @@
             android:focusable="true"/>
     </FrameLayout>
     <TextView
+        android:id="@+id/name_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="사용자123"
         android:textSize="20dp"
         android:layout_gravity="center"/>
     <TextView
+        android:id="@+id/email_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="abcdefg@gmail.com"
@@ -61,6 +63,7 @@
             android:layout_height="wrap_content"
             android:text="UID"/>
         <TextView
+            android:id="@+id/uid_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="13301"

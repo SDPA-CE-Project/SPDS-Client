@@ -10,6 +10,7 @@ import android.widget.ListView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.spda_app.DAO.DBManager;
 import com.example.spda_app.databinding.VibrationSettingBinding;
 
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ public class VibrationSettingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        selectedVibrationIndex = DBManager.GetInstance().accountInfo.getVibrationIndex();
+
         binding = VibrationSettingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -45,6 +49,7 @@ public class VibrationSettingActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 setSelectedVibrationIndex(position);
+                DBManager.GetInstance().accountInfo.setVibrationIndex(position);
                 binding.number.setText(String.valueOf(getSelectedVibrationIndex()));
 
                 if(playVibrate.isPlaying()) {
@@ -62,6 +67,7 @@ public class VibrationSettingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 playVibrate.stopAlarm(); // 진동 중지
+                DBManager.GetInstance().updateUserDataDB();
                 finish();
             }
         });

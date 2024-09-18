@@ -748,9 +748,73 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+
+    private void Alarm(int levelIndex)
+    {
+        switch (levelIndex)
+        {
+            case 0:
+                playSong.stopAlarm(); // 알람
+                playMedia.playAlarm(); //노래
+                playVibrate.stopAlarm(); //진동
+                break;
+            case 1:
+                playSong.stopAlarm();
+                playMedia.stopAlarm();
+                playVibrate.playAlarm();
+                break;
+            case 2:
+                playSong.playAlarm();
+                playMedia.stopAlarm();
+                playVibrate.stopAlarm();
+                break;
+        }
+
+
+    }
+
     private void sleepAlarm() {
 //        txtSleepCount.setText(getString(R.string.sleepStat, sleepCount));
         int timeCount = blinkCountThread.getBlinkRunCount();
+
+        int level1Index=0;
+        int level2Index=1;
+        int level3Index=2;
+        switch (DBManager.GetInstance().accountInfo.getLevelIndex())
+        {
+            case 0:
+                level1Index=0;
+                level2Index=1;
+                level3Index=2;
+                break;
+            case 1:
+                level1Index=0;
+                level2Index=2;
+                level3Index=1;
+                break;
+            case 2:
+                level1Index=1;
+                level2Index=0;
+                level3Index=2;
+                break;
+            case 3:
+                level1Index=1;
+                level2Index=2;
+                level3Index=0;
+                break;
+            case 4:
+                level1Index=2;
+                level2Index=0;
+                level3Index=1;
+                break;
+            case 5:
+                level1Index=2;
+                level2Index=1;
+                level3Index=0;
+        }
+
+
+
         if(GetTotalSleepCount() > 450){
 
             //알람 3단계
@@ -760,11 +824,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                 DBManager.GetInstance().AddAlarmHistory(3);
                 recentLevel = 3;
             }
-
-            playSong.playAlarm();
-            playMedia.stopAlarm();
-            playVibrate.stopAlarm();
-
+            Alarm(level3Index);
         }
         else if((blinkCountPer10s > (blinkAvg*2) && timeCount > 6) || GetTotalSleepCount() > 300) {
 
@@ -775,10 +835,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                 DBManager.GetInstance().AddAlarmHistory(2);
                 recentLevel = 2;
             }
-            playSong.playAlarm();
-            playMedia.stopAlarm();
-            playVibrate.stopAlarm();
-
+            Alarm(level2Index);
         }
         else if ((blinkCountPer10s > (blinkAvg*1.5) && timeCount > 6 && !playSong.isPlaying()) || GetTotalSleepCount() > 150) {
 
@@ -789,9 +846,8 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
                 DBManager.GetInstance().AddAlarmHistory(1);
                 recentLevel = 1;
             }
-            playSong.playAlarm();
-            playMedia.stopAlarm();
-            playVibrate.stopAlarm();
+
+            Alarm(level1Index);
 
         }
         else {
