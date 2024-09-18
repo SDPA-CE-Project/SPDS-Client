@@ -442,7 +442,7 @@ public class OndeviceActivity extends AppCompatActivity implements View.OnClickL
             public void onClick(View view) {
                 onClick(view);
                 DBManager.GetInstance().mAuth.signOut();
-                Intent intent = new Intent(OndeviceActivity.this, MainMenuActivity.class);
+                Intent intent = new Intent(OndeviceActivity.this, MainActivity2.class);
                 startActivity(intent);
             }
         });
