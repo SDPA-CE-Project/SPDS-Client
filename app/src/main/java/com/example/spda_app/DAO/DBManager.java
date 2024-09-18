@@ -122,6 +122,11 @@ public class DBManager {
                                 user.put("userEmail", email);
                                 user.put("userId", uid);
                                 user.put("userPasswd", password);
+                                user.put("userName", "홍길동");
+                                user.put("levelIndex",0);
+                                user.put("vibrationIndex",0);
+                                user.put("alarmBellIndex",0);
+                                user.put("songIndex",0);
 
                                 DBManager.GetInstance().fDatabase.collection("users").document(uid)
                                         .set(user)
@@ -151,6 +156,12 @@ public class DBManager {
                         accountInfo.setEmail(document.get("userEmail").toString());
                         accountInfo.setPassword(document.get("userPasswd").toString());
                         accountInfo.setUserId(document.get("userId").toString());
+                        accountInfo.setUserName(document.get("userName").toString());
+                        accountInfo.setAlarmBellIndex(Integer.parseInt(document.get("alarmBellIndex").toString()));
+                        accountInfo.setLevelIndex(Integer.parseInt(document.get("levelIndex").toString()));
+                        accountInfo.setVibrationIndex(Integer.parseInt(document.get("vibrationIndex").toString()));
+                        accountInfo.setSongIndex(Integer.parseInt(document.get("songIndex").toString()));
+
 //                        accountInfo.setTestdata(document.get("testdata").toString());
 
                     } else {
@@ -171,6 +182,11 @@ public class DBManager {
         Map<String, Object> updates = new HashMap<>();
         updates.put("userName", accountInfo.getUserName());
         updates.put("userEmail", accountInfo.getEmail());
+        updates.put("alarmBellIndex",accountInfo.getAlarmBellIndex());
+        updates.put("levelIndex",accountInfo.getLevelIndex());
+        updates.put("vibrationIndex",accountInfo.getVibrationIndex());
+        updates.put("songIndex",accountInfo.getSongIndex());
+
 
 //        docRef
 //                .update("testdata", accountInfo.getTestdata())

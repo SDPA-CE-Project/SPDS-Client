@@ -3,6 +3,7 @@ package com.example.spda_app;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -15,11 +16,22 @@ public class ProfileSettingActivity extends AppCompatActivity {
 
     private ProfileSettingBinding binding;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
+
         binding = ProfileSettingBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        binding.nameTitle.setText(DBManager.GetInstance().accountInfo.getUserName());
+        binding.nameText.setText(DBManager.GetInstance().accountInfo.getUserName());
+        binding.emailTitle.setText(DBManager.GetInstance().accountInfo.getEmail());
+        binding.emailText.setText(DBManager.GetInstance().accountInfo.getEmail());
+        binding.uidText.setText(DBManager.GetInstance().accountInfo.getUserId());
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

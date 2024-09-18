@@ -65,22 +65,7 @@
         android:layout_gravity="center"
         android:textAlignment="center">
     </Spinner>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="4단계 알람설정"
-        android:layout_marginLeft="65dp"
-        android:layout_marginTop="20dp" />
-    <Spinner
-        android:id="@+id/spinner4"
-        android:layout_width="280dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="0dp"
-        android:entries="@array/array4"
-        android:background="@drawable/spinner_custom"
-        android:layout_gravity="center"
-        android:textAlignment="center">
-    </Spinner>
+
 <!--    <Button-->
 <!--        android:id="@+id/abc"-->
 <!--        android:layout_width="wrap_content"-->
