@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="30dp">
+
+    <!-- 배너 이미지 -->
+    <ImageView
+        android:id="@+id/sdpsLogo"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:text="로그인 화면 이미지" />
+
+    <!-- ID 입력 -->
+    <EditText
+        android:id="@+id/edtEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="ID 입력"
+        android:layout_marginTop="16dp"
+        android:inputType="text" />
+
+    <!-- PW 입력 -->
+    <EditText
+        android:id="@+id/edtPasswd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="PW 입력"
+        android:layout_marginTop="8dp"
+        android:inputType="textPassword" />
+
+    <!-- 로그인 버튼 -->
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="로그인"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#D3D3FF"
+        android:textColor="#000000" />
+
+    <!-- 회원가입 버튼 -->
+    <Button
+        android:id="@+id/btnSign"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="회원가입"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#ADD8E6"
+        android:textColor="#000000" />
+
+    <!-- 아이디 / 비밀번호 찾기 -->
+    <TextView
+        android:id="@+id/resetQuestion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="아이디 / 비밀번호 찾기"
+        android:textColor="@android:color/holo_blue_dark"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true" />
+
+</LinearLayout>
