@@ -38,9 +38,6 @@
 
 
         <activity
-            android:name=".MainMenuActivity"
-            android:exported="false" />
-        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity android:name=".OndeviceActivity" />
